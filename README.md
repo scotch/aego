@@ -14,7 +14,7 @@ auth
 
 config
 ------
-**Database Config **
+**Database Config**
 
 context
 -------
