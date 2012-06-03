@@ -6,7 +6,7 @@ HAL
 
 auth
 ----
-** Multi-Provider Authentication **
+**Multi-Provider Authentication**
 
 * appengine_openid
 * password
@@ -14,20 +14,20 @@ auth
 
 config
 ------
-** Database Config **
+**Database Config **
 
 context
 -------
-** App Engine Testing Context **
+**App Engine Testing Context**
 
 ds
 --
-** Cached Presistence **
+**Cached Presistence**
 
 user
 ----
-** Applciation User **
+**Applciation User**
 
 user_profile
 ------------
-** Applciation UserProfile **
+**Applciation UserProfile**
