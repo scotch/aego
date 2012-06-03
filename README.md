@@ -8,7 +8,7 @@ auth
 ----
 **Multi-Provider Authentication**
 
-## install ##
+### install ###
 ``
   go get github.com/scotch/hal/auth
 ``
@@ -21,17 +21,16 @@ config
 ------
 **Database Config**
 
-## install ##
+### install ###
 ``
   go get github.com/scotch/hal/config
-
 ``
 
 context
 -------
 **App Engine Testing Context**
 
-## install ##
+### install ###
 ``
   go get github.com/scotch/hal/context
 ``
@@ -40,7 +39,7 @@ ds
 --
 **Cached Presistence**
 
-## install ##
+### install ###
 ``
   go get github.com/scotch/hal/ds
 ``
@@ -48,7 +47,7 @@ user
 ----
 **Applciation User**
 
-## install ##
+### install ###
 ``
   go get github.com/scotch/hal/user
 ``
@@ -58,7 +57,7 @@ user_profile
 **Applciation UserProfile**
 
 
-## install ##
+### install ###
 ``
   go get github.com/scotch/hal/user_profile
 ``
