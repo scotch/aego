@@ -6,11 +6,12 @@ HAL
 
 auth
 ----
-## install ##
-
-  go get github.com/scotch/hal/auth
-
 **Multi-Provider Authentication**
+
+## install ##
+``
+  go get github.com/scotch/hal/auth
+``
 
 * appengine_openid
 * password
@@ -21,33 +22,36 @@ config
 **Database Config**
 
 ## install ##
-
+``
   go get github.com/scotch/hal/config
 
+``
 
 context
 -------
 **App Engine Testing Context**
 
 ## install ##
-
+``
   go get github.com/scotch/hal/context
+``
 
 ds
 --
 **Cached Presistence**
 
 ## install ##
-
+``
   go get github.com/scotch/hal/ds
-
+``
 user
 ----
 **Applciation User**
 
 ## install ##
-
+``
   go get github.com/scotch/hal/user
+``
 
 user_profile
 ------------
@@ -55,5 +59,6 @@ user_profile
 
 
 ## install ##
-
+``
   go get github.com/scotch/hal/user_profile
+``
