@@ -10,14 +10,6 @@ TODO(kylefinley) Document this.
 
 */
 
-// TODO(kylefinley) add support for gob encoding of invalid datastore types.
-// E.g.
-// type T struct {
-//   A map[string]interface{} `ds:"gob"`
-// }
-// Would encode T.A to gob
-// Or maybe ds/datastore should handle this without intervention
-
 // TODO(kylefinley) Ideally this package would allow for a more modular approach.
 // The API would look more like this:
 //
@@ -29,6 +21,14 @@ TODO(kylefinley) Document this.
 // a pointer to the Register() method.
 //
 // The end goal is to create a consistant interface for all types of data persistence.
+
+// TODO(kylefinley) add support for gob encoding of invalid datastore types.
+// E.g.
+// type T struct {
+//   A map[string]interface{} `ds:"gob"`
+// }
+// Would encode T.A to gob
+// Or maybe this should be handled by ds/datastore.
 
 package ds
 
