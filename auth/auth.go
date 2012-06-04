@@ -69,6 +69,7 @@ func Register(key string, auth authenticater) {
 	providers[key] = auth
 	// Set the start url e.g. /-/auth/google to be handled by the handler.
 	http.HandleFunc(BaseURL+key, handler)
+	// Set the callback url e.g. /-/auth/google/callback to be handled by the handler.
 	http.HandleFunc(BaseURL+key+"/callback", handler)
 }
 
