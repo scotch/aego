@@ -14,19 +14,7 @@ used in web applications,
 
 package types
 
-import (
-	"encoding/json"
-)
-
-func (p *Person) ToJSON() (b []byte, err error) {
-	return json.Marshal(p)
-}
-
-func FromJSON(b []byte) (p *Person, err error) {
-	p = new(Person)
-	err = json.Unmarshal(b, &p)
-	return p, err
-}
+import ()
 
 type Person struct {
 	// AboutMe: A short biography for this person.
@@ -38,8 +26,17 @@ type Person struct {
 	// CurrentLocation: The current location for this person.
 	CurrentLocation string `json:"currentLocation,omitempty"`
 
+	// Created: The time in Unix time when the User was created.
+	Created int64 `json:"created,omitempty"`
+
+	// Updated: The time in Unix time when the User was updated.
+	Updated int64 `json:"updated,omitempty"`
+
 	// DisplayName: The name of this person, suitable for display.
 	DisplayName string `json:"displayName,omitempty"`
+
+	// Email is the default email address
+	Email string `json:"email,omitempty"`
 
 	// Emails: A list of email addresses for this person.
 	Emails []*PersonEmails `json:"emails,omitempty"`
@@ -47,9 +44,8 @@ type Person struct {
 	// Etag: ETag of this response for caching purposes.
 	Etag string `json:"etag,omitempty"`
 
-	// Gender: The person's gender. Possible values are:  
-	// - "male" - Male
-	// gender. 
+	// Gender: The person's gender. Possible values are: 
+	// - "male" - Male gender. 
 	// - "female" - Female gender. 
 	// - "other" - Other.
 	Gender string `json:"gender,omitempty"`
@@ -62,7 +58,7 @@ type Person struct {
 	HasApp bool `json:"hasApp,omitempty"`
 
 	// Id: The ID of this person.
-	Id string `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 
 	// Image: The representation of the person's profile photo.
 	Image *PersonImage `json:"image,omitempty"`
@@ -81,10 +77,8 @@ type Person struct {
 	Nickname string `json:"nickname,omitempty"`
 
 	// ObjectType: Type of person within Google+. Possible values are:  
-	// -
-	// "person" - represents an actual person. 
-	// - "page" - represents a
-	// page.
+	// - "person" - represents an actual person. 
+	// - "page" - represents a page.
 	ObjectType string `json:"objectType,omitempty"`
 
 	// Organizations: A list of current or past organizations with which
@@ -94,30 +88,26 @@ type Person struct {
 	// PlacesLived: A list of places where this person has lived.
 	PlacesLived []*PersonPlacesLived `json:"placesLived,omitempty"`
 
-	// RelationshipStatus: The person's relationship status. Possible values
-	// are:  
+	// Password: A Password object used for password changes.
+	Password *PersonPassword `json:"password,omitempty"`
+
+	// RelationshipStatus: The person's relationship status. Possible values are:  
 	// - "single" - Person is single. 
-	// - "in_a_relationship" - Person
-	// is in a relationship. 
+	// - "in_a_relationship" - Person is in a relationship. 
 	// - "engaged" - Person is engaged. 
-	// - "married"
-	// - Person is married. 
-	// - "its_complicated" - The relationship is
-	// complicated. 
-	// - "open_relationship" - Person is in an open
-	// relationship. 
+	// - "married" - Person is married. 
+	// - "its_complicated" - The relationship is complicated. 
+	// - "open_relationship" - Person is in an open relationship. 
 	// - "widowed" - Person is widowed. 
-	// -
-	// "in_domestic_partnership" - Person is in a domestic partnership. 
-	// -
-	// "in_civil_union" - Person is in a civil union.
+	// - "in_domestic_partnership" - Person is in a domestic partnership. 
+	// - "in_civil_union" - Person is in a civil union.
 	RelationshipStatus string `json:"relationshipStatus,omitempty"`
 
 	// Tagline: The brief description (tagline) of this person.
 	Tagline string `json:"tagline,omitempty"`
 
 	// Url: The URL of this person's profile.
-	Url string `json:"url,omitempty"`
+	URL string `json:"url,omitempty"`
 
 	// Urls: A list of URLs for this person.
 	Urls []*PersonUrls `json:"urls,omitempty"`
@@ -128,9 +118,8 @@ type PersonEmails struct {
 	// primary one.
 	Primary bool `json:"primary,omitempty"`
 
-	// Type: The type of address. Possible values are:  
-	// - "home" - Home
-	// email address. 
+	// Type: The type of address. Possible values are: 
+	// - "home" - Home email address. 
 	// - "work" - Work email address. 
 	// - "other" - Other.
 	Type string `json:"type,omitempty"`
@@ -196,9 +185,8 @@ type PersonOrganizations struct {
 	// Title: The person's job title or role within the organization.
 	Title string `json:"title,omitempty"`
 
-	// Type: The type of organization. Possible values are:  
-	// - "work" -
-	// Work. 
+	// Type: The type of organization. Possible values are: 
+	// - "work" - Work. 
 	// - "school" - School.
 	Type string `json:"type,omitempty"`
 }
@@ -217,16 +205,25 @@ type PersonUrls struct {
 	// Primary: If "true", this URL is the person's primary URL.
 	Primary bool `json:"primary,omitempty"`
 
-	// Type: The type of URL. Possible values are:  
-	// - "home" - URL for
-	// home. 
+	// Type: The type of URL. Possible values are: 
+	// - "home" - URL for home. 
 	// - "work" - URL for work. 
 	// - "blog" - URL for blog. 
-	// -
-	// "profile" - URL for profile. 
+	// - "profile" - URL for profile. 
 	// - "other" - Other.
 	Type string `json:"type,omitempty"`
 
 	// Value: The URL value.
 	Value string `json:"value,omitempty"`
+}
+
+type PersonPassword struct {
+	// New: the new password.
+	New string `json:"new,omitempty"`
+
+	// Current: The current password.
+	Current string `json:"current,omitempty"`
+
+	// IsSet: Indictor that the User has created a password.
+	IsSet bool `json:"isSet,omitempty"`
 }
