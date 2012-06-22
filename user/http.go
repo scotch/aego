@@ -8,6 +8,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"github.com/scotch/hal/context"
+	"github.com/scotch/hal/ds"
 	"github.com/scotch/hal/session"
 	"net/http"
 )
@@ -96,7 +97,8 @@ func Current(r *http.Request, u *User) (*datastore.Key, error) {
 	userID, _ := CurrentUserID(r)
 	if userID != 0 {
 		c := context.NewContext(r)
-		u, key, err := Get(c, userID)
+		key := datastore.NewKey(c, "User", "", userID, nil)
+		err := ds.Get(c, key, u)
 		return key, err
 	}
 	return nil, ErrNoLoggedInUser

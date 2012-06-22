@@ -97,7 +97,7 @@ func createAndLogin(c appengine.Context, w http.ResponseWriter, r *http.Request,
 	if err != nil {
 		// If the User isn't logged in. Create an User and log them in.
 		uKey, err = user.GetOrInsertByAuthID(c, up.Key.StringID(), u)
-		user.SetCurrentUserID(w, r, uKey.IntID())
+		user.CurrentUserSetID(w, r, uKey.IntID())
 	} else {
 		u.AddAuthID(up.Key.StringID())
 		uKey, err = u.Put(c, uKey)
