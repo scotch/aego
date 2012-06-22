@@ -34,12 +34,11 @@ func GetByAuthID(c appengine.Context, authID string, u *User) (key *datastore.Ke
 }
 
 // CreateByAuthID populates a *User and saves it.
-func CreateByAuthID(c appengine.Context, authID string, u *User) (*datastore.Key, error) {
+func createByAuthID(c appengine.Context, authID string, u *User) (*datastore.Key, error) {
 	key := datastore.NewKey(c, "User", "", 0, nil)
 	//u.AddAuthID(authID)
 	u.AuthIDs = []string{authID}
 	u.Created = time.Now()
-	u.Updated = time.Now()
 	key, err := u.Put(c, key)
 	return key, err
 }
@@ -51,7 +50,7 @@ func GetOrInsertByAuthID(c appengine.Context, authID string, u *User) (
 	key, err = GetByAuthID(c, authID, u)
 	// User dosen't exist; create it.
 	if err == dserror.ErrNoSuchEntity {
-		key, err = CreateByAuthID(c, authID, u)
+		key, err = createByAuthID(c, authID, u)
 	} else {
 		// User exists; Append the AuthID and save the User.
 		u.AddAuthID(authID)
