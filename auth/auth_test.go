@@ -200,7 +200,7 @@ func Test_createAndLogin(t *testing.T) {
 	if cnt, _ := q.Count(c); cnt != 0 {
 		t.Errorf(`UserProfile cnt: %v, want 0`, cnt)
 	}
-	_, err := user.Current(c, r, u)
+	_, err := user.Current(r, u)
 	if err != user.ErrNoLoggedInUser {
 		t.Errorf(`err: %v, want %v`, err, user.ErrNoLoggedInUser)
 	}
@@ -258,7 +258,7 @@ func Test_createAndLogin(t *testing.T) {
 
 	// Confirm Logged in User.
 
-	k, err := user.Current(c, r, u)
+	k, err := user.Current(r, u)
 	if err != nil {
 		t.Errorf(`err: %v, want %v`, err, nil)
 	}
@@ -285,7 +285,7 @@ func Test_createAndLogin(t *testing.T) {
 
 	// Confirm Logged in User hasn't changed.
 
-	k, err = user.Current(c, r, u)
+	k, err = user.Current(r, u)
 	if err != nil {
 		t.Errorf(`err: %v, want %v`, err, nil)
 	}
@@ -324,7 +324,7 @@ func Test_createAndLogin(t *testing.T) {
 
 	// Confirm Logged out User.
 
-	_, err = user.Current(c, r, u)
+	_, err = user.Current(r, u)
 	if err != user.ErrNoLoggedInUser {
 		t.Errorf(`err: %q, want %q`, err, user.ErrNoLoggedInUser)
 	}
@@ -353,7 +353,7 @@ func Test_createAndLogin(t *testing.T) {
 
 	// Confirm Logged in User hasn't changed.
 
-	k, err = user.Current(c, r, u)
+	k, err = user.Current(r, u)
 	if err != nil {
 		t.Errorf(`err: %v, want %v`, err, nil)
 	}

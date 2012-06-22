@@ -7,10 +7,11 @@ package user
 import (
 	"appengine"
 	"appengine/datastore"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/scotch/hal/ds"
-	"github.com/scotch/hal/session"
-	"net/http"
+	"github.com/scotch/hal/types"
 	"time"
 )
 
@@ -20,6 +21,8 @@ var (
 
 // User definition
 type User struct {
+	// The datastore Key
+	Key *datastore.Key `datastore:"-"`
 	// AuthIDs is a list of string represting additional authentications
 	// stategies. E.g.
 	//
@@ -30,7 +33,7 @@ type User struct {
 	Email string
 	// Emails is a list of additional email addresses. Used in quering.
 	Emails []string
-	// Password is a password hast used to verify the user.
+	// Password is a password hash used to verify the user.
 	Password []byte
 	// Roles is a list of role names that the user belongs to.
 	Roles []string
@@ -38,89 +41,92 @@ type User struct {
 	Created time.Time
 	// Updated is a time.Time of when the User was last updated.
 	Updated time.Time
+	// Person is an Object representing personal information about the user.
+	Person *types.Person `datastore:"-"`
+	// PersonJSON is the Person object converted to JSON, for storage purposes.
+	PersonJSON []byte
 }
 
 // New creates a new user and set the Created to now
 func New() *User {
 	return &User{
-		//Email:   email,
+		Person:  new(types.Person),
 		Created: time.Now(),
 		Updated: time.Now(),
 	}
 }
 
-// Get is a convience method for retrieveing an entity foom the store.
-func Get(c appengine.Context, id int64) (*User, *datastore.Key, error) {
-	u := &User{}
-	key := datastore.NewKey(c, "User", "", id, nil)
-	err := ds.Get(c, key, u)
-	return u, key, err
+func (u *User) Decode() error {
+	if u.PersonJSON != nil {
+		var p *types.Person
+		err := json.Unmarshal(u.PersonJSON, &p)
+		u.Person = p
+		return err
+	}
+	return nil
+}
+
+func (u *User) Encode() error {
+
+	// Update Person
+
+	// Sanity check, maybe we should raise an error instead.
+	if u.Person == nil {
+		u.Person = new(types.Person)
+	}
+	u.Person.ID = fmt.Sprintf("%v", u.Key.IntID())
+	u.Person.Created = u.Created.Unix()
+	u.Person.Updated = u.Updated.Unix()
+	if l := len(u.Password); l != 0 {
+		u.Person.Password = &types.PersonPassword{IsSet: true}
+	} else {
+		u.Person.Password = &types.PersonPassword{IsSet: false}
+	}
+
+	// Convert to JSON
+
+	j, err := json.Marshal(u.Person)
+	u.PersonJSON = j
+	return err
 }
 
 // Put is a convience method to save the User to the datastore and
 // updated the Updated property to time.Now().
 func (u *User) Put(c appengine.Context, key *datastore.Key) (*datastore.Key, error) {
+
+	// If we are saving for the first time lets get an id so that we
+	// can save the id to the json data before saving the entity. This
+	// prevents up from having to save twice.
+	if key.IntID() == 0 {
+		intID, _, err := ds.AllocateIDs(c, "User", nil, 1)
+		if err != nil {
+			return nil, err
+		}
+		key = datastore.NewKey(c, "User", "", intID, nil)
+	}
 	u.Updated = time.Now()
+	u.Key = key
+	u.Encode()
 	key, err := ds.Put(c, key, u)
 	return key, err
 }
 
-// CurrentUserID returns the userID of the requesting user.
-func CurrentUserID(r *http.Request) (int64, error) {
-	s, err := session.Store.Get(r, "auth")
-	if err != nil {
-		return 0, err
+// IsAdmin returns true if the requesting user is an admin;
+// otherwise returns false.
+func (u *User) HasRole(role string) bool {
+	for _, r := range u.Roles {
+		if r == role {
+			return true
+		}
 	}
-	userID, _ := s.Values["userid"].(int64)
-	return userID, err
+	return false
 }
 
-// SetCurrentUserID adds the provided userID to the current users session/cookie
-func SetCurrentUserID(w http.ResponseWriter, r *http.Request, userID int64) error {
-	s, err := session.Store.Get(r, "auth")
-	if err != nil {
-		return err
-	}
-	s.Values["userid"] = userID
-	s.Save(r, w)
-	return nil
-}
-
-// Logout sets the session userid to 0, effectivly logging the user out.
-func Logout(w http.ResponseWriter, r *http.Request) error {
-	return SetCurrentUserID(w, r, 0)
-}
-
-// Current checks the requesting User's session to see if they have an
-// account. If they do, the provided User struct is populated with the
-// information that is saved in the datastore. If they don't an error is
-// returned.
-// NOTE: this method will likely change in un upcomming release. The
-// appengine.Context argument will be removed.
-func Current(c appengine.Context, r *http.Request, u *User) (*datastore.Key, error) {
-	// TODO(kylefinley) We need either the appengine.Context or the
-	// *http.Request not both. There's a testing issue that prevents
-	// converting the request to a context mid function, once this is
-	// resulved remove the appengine.Context argument.
-	userID, _ := CurrentUserID(r)
-	if userID != 0 {
-		key := datastore.NewKey(c, "User", "", userID, nil)
-		err := ds.Get(c, key, u)
-		return key, err
-	}
-	return nil, ErrNoLoggedInUser
-}
-
-// IsAdmin returns true if the requesting user is an admin; otherwise
-// returns false.
-func IsAdmin(r *http.Request) (bool, error) {
-	s, err := session.Store.Get(r, "auth")
-	if err != nil {
-		return false, err
-	}
-	isAdmin, _ := s.Values["isadmin"].(int64)
-	if isAdmin == 1 {
-		return true, nil
-	}
-	return false, nil
+// Get is a convience method for retrieveing an entity foom the store.
+func Get(c appengine.Context, id int64) (u *User, key *datastore.Key, err error) {
+	u = &User{}
+	key = datastore.NewKey(c, "User", "", id, nil)
+	err = ds.Get(c, key, u)
+	u.Decode()
+	return u, key, err
 }

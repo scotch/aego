@@ -40,7 +40,7 @@ func TestSetCurrentUserID(t *testing.T) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "http://localhost:8080/", nil)
 	var userID int64 = 1
-	err := SetCurrentUserID(w, r, userID)
+	err := CurrentUserSetID(w, r, userID)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -76,7 +76,7 @@ func TestCurrent(t *testing.T) {
 
 	// Current.
 
-	key, err = Current(c, r, u)
+	key, err = Current(r, u)
 	if err != ErrNoLoggedInUser {
 		t.Errorf(`err: %q, want %q`, err, ErrNoLoggedInUser)
 	}
@@ -84,7 +84,7 @@ func TestCurrent(t *testing.T) {
 	// Login User.
 
 	var userID int64 = 1
-	err = SetCurrentUserID(w, r, userID)
+	err = CurrentUserSetID(w, r, userID)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -96,7 +96,7 @@ func TestCurrent(t *testing.T) {
 	if id != 1 {
 		t.Errorf(`userID: %v, want 1`, userID)
 	}
-	key2, err := Current(c, r, u2)
+	key2, err := Current(r, u2)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -106,7 +106,25 @@ func TestCurrent(t *testing.T) {
 	if u2.Email != "test@example.com" {
 		t.Errorf(`u2.Email: %v, want test@example.com`, u2.Email)
 	}
-
+	// Check Person
+	if u2.Person.ID != "1" {
+		t.Errorf(`u2.Person.ID: %v, want "1"`, u2.Person.ID)
+	}
+	if u2.Person.Created != u2.Created.Unix() {
+		t.Errorf(`u2.Created: %v, want %v`, u2.Person.Created,
+			u2.Created.Unix())
+	}
+	if u2.Person.Updated != u2.Updated.Unix() {
+		t.Errorf(`u2.Updated: %v, want %v`, u2.Person.Updated,
+			u2.Updated.Unix())
+	}
+	if u2.Person.Email != u2.Email {
+		t.Errorf(`u2.Email: %v, want %v`, u2.Person.Email, u2.Email)
+	}
+	if u2.Person.Password.IsSet != false {
+		t.Errorf(`u2.Person.Password.IsSet: %v, want %v`,
+			u2.Person.Password.IsSet, false)
+	}
 	// Logout User
 
 	err = Logout(w, r)
@@ -116,7 +134,7 @@ func TestCurrent(t *testing.T) {
 
 	// Confirm logged out.
 
-	key, err = Current(c, r, u)
+	key, err = Current(r, u)
 	if err != ErrNoLoggedInUser {
 		t.Errorf(`err: %q, want %q`, err, ErrNoLoggedInUser)
 	}

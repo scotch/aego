@@ -85,15 +85,15 @@ func breakURL(url string) (name string) {
 // createAndLogin saves the UserProfile to the datastore. And appends
 // the Key.StringID() to the current User's AuthIDs. If a User has not
 // yet been created, it creates one.
-func createAndLogin(c appengine.Context, w http.ResponseWriter, r *http.Request, u *user.User,
-	up *user_profile.UserProfile) (uKey *datastore.Key, err error) {
+func createAndLogin(c appengine.Context, w http.ResponseWriter, r *http.Request,
+	u *user.User, up *user_profile.UserProfile) (uKey *datastore.Key, err error) {
 
 	// Save it.
 	err = up.Put(c)
 	if err != nil {
 		return
 	}
-	uKey, err = user.Current(c, r, u)
+	uKey, err = user.Current(r, u)
 	if err != nil {
 		// If the User isn't logged in. Create an User and log them in.
 		uKey, err = user.GetOrInsertByAuthID(c, up.Key.StringID(), u)
