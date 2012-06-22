@@ -44,8 +44,7 @@ func TestGetOrInsertByAuthID(t *testing.T) {
 
 	// Create.
 
-	u := New()
-	key, err := GetOrInsertByAuthID(c, authID, u)
+	u, err := GetOrInsertByAuthID(c, authID)
 	if err != nil {
 		t.Errorf(`err: %q, want: %q`, err, nil)
 	}
@@ -56,7 +55,7 @@ func TestGetOrInsertByAuthID(t *testing.T) {
 
 	// Confirm.
 
-	u2, _, err := Get(c, key.IntID())
+	u2, err := Get(c, u.Key.IntID())
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -77,14 +76,14 @@ func TestGetOrInsertByAuthID(t *testing.T) {
 
 	u = New()
 	u.Email = "test@example.com"
-	key, err = GetOrInsertByAuthID(c, authID, u)
+	u, err = GetOrInsertByAuthID(c, authID)
 	if err != nil {
 		t.Errorf(`err: %q, want: %q`, err, nil)
 	}
 
 	// Confirm.
 
-	u2, _, err = Get(c, key.IntID())
+	u2, err = Get(c, u.Key.IntID())
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}

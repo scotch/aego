@@ -24,8 +24,6 @@ Example Usage:
 package auth
 
 import (
-	"appengine"
-	"appengine/datastore"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/user"
 	"github.com/scotch/hal/user_profile"
@@ -85,31 +83,34 @@ func breakURL(url string) (name string) {
 // createAndLogin saves the UserProfile to the datastore. And appends
 // the Key.StringID() to the current User's AuthIDs. If a User has not
 // yet been created, it creates one.
-func createAndLogin(c appengine.Context, w http.ResponseWriter, r *http.Request,
-	u *user.User, up *user_profile.UserProfile) (uKey *datastore.Key, err error) {
+func createAndLogin(w http.ResponseWriter, r *http.Request,
+	up *user_profile.UserProfile) (u *user.User, err error) {
 
+	c := context.NewContext(r)
 	// Save it.
 	err = up.Put(c)
 	if err != nil {
 		return
 	}
-	uKey, err = user.Current(r, u)
+	u, err = user.Current(r)
 	if err != nil {
 		// If the User isn't logged in. Create an User and log them in.
-		uKey, err = user.GetOrInsertByAuthID(c, up.Key.StringID(), u)
-		user.CurrentUserSetID(w, r, uKey.IntID())
-	} else {
-		u.AddAuthID(up.Key.StringID())
-		uKey, err = u.Put(c, uKey)
+		u, err = user.GetOrInsertByAuthID(c, up.Key.StringID())
+		_ = user.CurrentUserSetID(w, r, u.Key.IntID())
+		return
 	}
+	u.AddAuthID(up.Key.StringID())
+	err = u.Put(c)
 	return
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	c := context.NewContext(r)
+
 	up := user_profile.New()
-	pro := providers[breakURL(r.URL.Path)]
-	url, err := pro.Authenticate(w, r, up)
+	k := breakURL(r.URL.Path)
+	p := providers[k]
+	url, err := p.Authenticate(w, r, up)
+
 	if err != nil {
 		// TODO: set error message in session.
 		http.Redirect(w, r, LoginURL, http.StatusFound)
@@ -129,10 +130,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		panic(`hal/auth: The UserProfile's "ID" or "Provider" is empty.` +
 			`A Key can not be created.`)
 	}
-	u := user.New()
-	_, err = createAndLogin(c, w, r, u, up)
 
-	if err != nil {
+	if _, err = createAndLogin(w, r, up); err != nil {
 		// TODO: set error message in session.
 		http.Redirect(w, r, LoginURL, http.StatusFound)
 		return

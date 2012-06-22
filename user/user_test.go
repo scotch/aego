@@ -68,15 +68,15 @@ func TestCurrent(t *testing.T) {
 
 	u := New()
 	u.Email = "test@example.com"
-	key := datastore.NewKey(c, "User", "", 1, nil)
-	_, err := u.Put(c, key)
+	u.Key = datastore.NewKey(c, "User", "", 1, nil)
+	err := u.Put(c)
 	if err != nil {
 		t.Fatalf(`err: %v, want nil`, err)
 	}
 
 	// Current.
 
-	key, err = Current(r, u)
+	_, err = Current(r)
 	if err != ErrNoLoggedInUser {
 		t.Errorf(`err: %q, want %q`, err, ErrNoLoggedInUser)
 	}
@@ -91,17 +91,16 @@ func TestCurrent(t *testing.T) {
 
 	// Get Current.
 
-	u2 := &User{}
 	id, err := CurrentUserID(r)
 	if id != 1 {
 		t.Errorf(`userID: %v, want 1`, userID)
 	}
-	key2, err := Current(r, u2)
+	u2, err := Current(r)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
-	if key2.IntID() != 1 {
-		t.Errorf(`key2.IntID(): %v, want 1`, key2.IntID())
+	if u2.Key.IntID() != 1 {
+		t.Errorf(`u2.Key.IntID(): %v, want 1`, u2.Key.IntID())
 	}
 	if u2.Email != "test@example.com" {
 		t.Errorf(`u2.Email: %v, want test@example.com`, u2.Email)
@@ -127,15 +126,13 @@ func TestCurrent(t *testing.T) {
 	}
 	// Logout User
 
-	err = Logout(w, r)
-	if err != nil {
+	if err = Logout(w, r); err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
 
 	// Confirm logged out.
 
-	key, err = Current(r, u)
-	if err != ErrNoLoggedInUser {
+	if _, err = Current(r); err != ErrNoLoggedInUser {
 		t.Errorf(`err: %q, want %q`, err, ErrNoLoggedInUser)
 	}
 }
@@ -148,15 +145,15 @@ func TestGet(t *testing.T) {
 
 	u := New()
 	u.Email = "test@example.com"
-	key := datastore.NewKey(c, "User", "", 0, nil)
-	key, err := u.Put(c, key)
+	u.Key = datastore.NewKey(c, "User", "", 0, nil)
+	err := u.Put(c)
 	if err != nil {
 		t.Errorf(`err: %q, want nil`, err)
 	}
 
 	// Get it.
 
-	u2, _, err := Get(c, key.IntID())
+	u2, err := Get(c, u.Key.IntID())
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}

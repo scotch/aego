@@ -92,23 +92,23 @@ func (u *User) Encode() error {
 
 // Put is a convience method to save the User to the datastore and
 // updated the Updated property to time.Now().
-func (u *User) Put(c appengine.Context, key *datastore.Key) (*datastore.Key, error) {
+func (u *User) Put(c appengine.Context) error {
 
 	// If we are saving for the first time lets get an id so that we
 	// can save the id to the json data before saving the entity. This
-	// prevents up from having to save twice.
-	if key.IntID() == 0 {
+	// prevents us from having to save twice.
+	if u.Key.IntID() == 0 {
 		intID, _, err := ds.AllocateIDs(c, "User", nil, 1)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		key = datastore.NewKey(c, "User", "", intID, nil)
+		u.Key = datastore.NewKey(c, "User", "", intID, nil)
 	}
 	u.Updated = time.Now()
-	u.Key = key
 	u.Encode()
-	key, err := ds.Put(c, key, u)
-	return key, err
+	key, err := ds.Put(c, u.Key, u)
+	u.Key = key
+	return err
 }
 
 // IsAdmin returns true if the requesting user is an admin;
@@ -123,10 +123,11 @@ func (u *User) HasRole(role string) bool {
 }
 
 // Get is a convience method for retrieveing an entity foom the store.
-func Get(c appengine.Context, id int64) (u *User, key *datastore.Key, err error) {
+func Get(c appengine.Context, id int64) (u *User, err error) {
 	u = &User{}
-	key = datastore.NewKey(c, "User", "", id, nil)
+	key := datastore.NewKey(c, "User", "", id, nil)
 	err = ds.Get(c, key, u)
+	u.Key = key
 	u.Decode()
-	return u, key, err
+	return u, err
 }

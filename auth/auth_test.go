@@ -184,7 +184,6 @@ func Test_createAndLogin(t *testing.T) {
 	c := context.NewContext(nil)
 
 	up := user_profile.New()
-	u := user.New()
 	r, _ := http.NewRequest("GET", "http://localhost:8080/-/auth/example4", nil)
 	w := httptest.NewRecorder()
 
@@ -200,7 +199,7 @@ func Test_createAndLogin(t *testing.T) {
 	if cnt, _ := q.Count(c); cnt != 0 {
 		t.Errorf(`UserProfile cnt: %v, want 0`, cnt)
 	}
-	_, err := user.Current(r, u)
+	u, err := user.Current(r)
 	if err != user.ErrNoLoggedInUser {
 		t.Errorf(`err: %v, want %v`, err, user.ErrNoLoggedInUser)
 	}
@@ -209,13 +208,13 @@ func Test_createAndLogin(t *testing.T) {
 
 	up.ID = "1"
 	up.Provider = "Example"
-	uKey, err := createAndLogin(c, w, r, u, up)
+	u, err = createAndLogin(w, r, up)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
 
-	if uKey.IntID() != 1 {
-		t.Errorf(`uKey.IntID(): %v, want 1`, uKey.IntID())
+	if u.Key.IntID() != 1 {
+		t.Errorf(`u.Key.IntID(): %v, want 1`, u.Key.IntID())
 	}
 	if up.Key.StringID() != "example|1" {
 		t.Errorf(`up.Key.StringID(): %v, want "example|1"`, up.Key.StringID())
@@ -237,15 +236,15 @@ func Test_createAndLogin(t *testing.T) {
 
 	// Confirm User.
 
-	ru, ruKey, err := user.Get(c, 1)
+	ru, err := user.Get(c, 1)
 	if err != nil {
 		t.Fatalf(`err: %v, want nil`, err)
 	}
 	if ru.AuthIDs[0] != "example|1" {
 		t.Errorf(`ru.AuthIDs[0]: %v, want "example|1"`, ru.AuthIDs[0])
 	}
-	if ruKey.IntID() != 1 {
-		t.Errorf(`ruKey.IntID(): %v, want 1`, ruKey.IntID())
+	if ru.Key.IntID() != 1 {
+		t.Errorf(`ru.Key.IntID(): %v, want 1`, ru.Key.IntID())
 	}
 	q2 := datastore.NewQuery("User")
 	if cnt, _ := q2.Count(c); cnt != 1 {
@@ -258,12 +257,12 @@ func Test_createAndLogin(t *testing.T) {
 
 	// Confirm Logged in User.
 
-	k, err := user.Current(r, u)
+	u, err = user.Current(r)
 	if err != nil {
 		t.Errorf(`err: %v, want %v`, err, nil)
 	}
-	if k.IntID() != 1 {
-		t.Errorf(`k.IntID(): %v, want 1`, k.IntID())
+	if u.Key.IntID() != 1 {
+		t.Errorf(`u.Key.IntID(): %v, want 1`, u.Key.IntID())
 	}
 	if len(u.AuthIDs) != 1 {
 		t.Errorf(`len(u.AuthIDs): %v, want 1`, len(u.AuthIDs))
@@ -278,19 +277,19 @@ func Test_createAndLogin(t *testing.T) {
 	up = user_profile.New()
 	up.ID = "2"
 	up.Provider = "AnotherExample"
-	uKey, err = createAndLogin(c, w, r, u, up)
+	u, err = createAndLogin(w, r, up)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
 
 	// Confirm Logged in User hasn't changed.
 
-	k, err = user.Current(r, u)
+	u, err = user.Current(r)
 	if err != nil {
 		t.Errorf(`err: %v, want %v`, err, nil)
 	}
-	if k.IntID() != 1 {
-		t.Errorf(`k.IntID(): %v, want 1`, k.IntID())
+	if u.Key.IntID() != 1 {
+		t.Errorf(`u.Key.IntID(): %v, want 1`, u.Key.IntID())
 	}
 	if len(u.AuthIDs) != 2 {
 		t.Errorf(`len(u.AuthIDs): %v, want 2`, len(u.AuthIDs))
@@ -324,18 +323,17 @@ func Test_createAndLogin(t *testing.T) {
 
 	// Confirm Logged out User.
 
-	_, err = user.Current(r, u)
+	u, err = user.Current(r)
 	if err != user.ErrNoLoggedInUser {
 		t.Errorf(`err: %q, want %q`, err, user.ErrNoLoggedInUser)
 	}
 
 	// Login.
 
-	u = user.New()
 	up = user_profile.New()
 	up.ID = "1"
 	up.Provider = "Example"
-	uKey, err = createAndLogin(c, w, r, u, up)
+	u, err = createAndLogin(w, r, up)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -353,12 +351,12 @@ func Test_createAndLogin(t *testing.T) {
 
 	// Confirm Logged in User hasn't changed.
 
-	k, err = user.Current(r, u)
+	u, err = user.Current(r)
 	if err != nil {
 		t.Errorf(`err: %v, want %v`, err, nil)
 	}
-	if k.IntID() != 1 {
-		t.Errorf(`k.IntID(): %v, want 1`, k.IntID())
+	if u.Key.IntID() != 1 {
+		t.Errorf(`k.IntID(): %v, want 1`, u.Key.IntID())
 	}
 	if len(u.AuthIDs) != 2 {
 		t.Errorf(`len(u.AuthIDs): %v, want 2`, len(u.AuthIDs))

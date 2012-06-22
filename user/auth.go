@@ -17,52 +17,48 @@ import (
 )
 
 // GetByAuthID gets a User by an associated UserProfile StringID.
-func GetByAuthID(c appengine.Context, authID string, u *User) (key *datastore.Key, err error) {
+func GetByAuthID(c appengine.Context, authID string) (u *User, err error) {
 	q := datastore.NewQuery("User").
 		Filter("AuthIDs =", authID).
 		Limit(1)
 	for t := q.Run(c); ; {
-		key, err = t.Next(u)
+		u := new(User)
+		key, err := t.Next(u)
 		if err != nil {
 			err = dserror.ErrNoSuchEntity
-			return
+			return nil, err
 		} else {
-			return
+			u.Key = key
+			return u, nil
 		}
 	}
 	return
 }
 
-// CreateByAuthID populates a *User and saves it.
-func createByAuthID(c appengine.Context, authID string, u *User) (*datastore.Key, error) {
-	key := datastore.NewKey(c, "User", "", 0, nil)
-	//u.AddAuthID(authID)
-	u.AuthIDs = []string{authID}
+// CreateByAuthID creates a new user from an AuthID
+func CreateByAuthID(c appengine.Context, authID string) (u *User, err error) {
+	u = New()
 	u.Created = time.Now()
-	key, err := u.Put(c, key)
-	return key, err
+	u.AuthIDs = []string{authID}
+	u.Key = datastore.NewKey(c, "User", "", 0, nil)
+	err = u.Put(c)
+	return u, err
 }
 
 // GetOrInsertByAuthID creates or updates a User from a UserProfile Key
-func GetOrInsertByAuthID(c appengine.Context, authID string, u *User) (
-	key *datastore.Key, err error) {
-
-	key, err = GetByAuthID(c, authID, u)
-	// User dosen't exist; create it.
-	if err == dserror.ErrNoSuchEntity {
-		key, err = createByAuthID(c, authID, u)
-	} else {
-		// User exists; Append the AuthID and save the User.
+func GetOrInsertByAuthID(c appengine.Context, authID string) (u *User, err error) {
+	u, err = GetByAuthID(c, authID)
+	if err == nil {
 		u.AddAuthID(authID)
-		key, err = u.Put(c, key)
+		err = u.Put(c)
+		return
 	}
+	u, err = CreateByAuthID(c, authID)
 	return
 }
 
-// AddAuthID Adds an AuthID to the User's AuthIDs list only
-// if it doesn't already exist.
+// AddAuthID Adds an AuthID to the User's AuthIDs list
 func (u *User) AddAuthID(authID string) {
-
 	for _, id := range u.AuthIDs {
 		if id == authID {
 			return

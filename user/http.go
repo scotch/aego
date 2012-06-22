@@ -64,8 +64,10 @@ func CurrentUserHasRole(w http.ResponseWriter, r *http.Request, role string) (bo
 
 	// 2nd Check the ds.
 
-	u := new(User)
-	_, _ = Current(r, u)
+	u, err := Current(r)
+	if err != nil {
+		return false, err
+	}
 
 	if u.HasRole(role) == true {
 		// Set the role to true in the session to avoid this look up in the future.
@@ -93,13 +95,15 @@ func CurrentUserSetRole(w http.ResponseWriter, r *http.Request, role string,
 // account. If they do, the provided User struct is populated with the
 // information that is saved in the datastore. If they don't an error is
 // returned.
-func Current(r *http.Request, u *User) (*datastore.Key, error) {
+func Current(r *http.Request) (*User, error) {
 	userID, _ := CurrentUserID(r)
 	if userID != 0 {
 		c := context.NewContext(r)
+		u := new(User)
 		key := datastore.NewKey(c, "User", "", userID, nil)
 		err := ds.Get(c, key, u)
-		return key, err
+		u.Key = key
+		return u, err
 	}
 	return nil, ErrNoLoggedInUser
 }
