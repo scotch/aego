@@ -44,7 +44,7 @@ type User struct {
 	// Person is an Object representing personal information about the user.
 	Person *types.Person `datastore:"-"`
 	// PersonJSON is the Person object converted to JSON, for storage purposes.
-	PersonJSON []byte
+	PersonJSON []byte `datastore:"Person"`
 }
 
 // New creates a new user and set the Created to now
@@ -75,8 +75,10 @@ func (u *User) Encode() error {
 		u.Person = new(types.Person)
 	}
 	u.Person.ID = fmt.Sprintf("%v", u.Key.IntID())
-	u.Person.Created = u.Created.Unix()
-	u.Person.Updated = u.Updated.Unix()
+	// TODO(kylefinley) consider alternatives to returning miliseconds.
+	// Convert time to unix miliseconds for javascript
+	u.Person.Created = u.Created.UnixNano() / 1000000
+	u.Person.Updated = u.Updated.UnixNano() / 1000000
 	if l := len(u.Password); l != 0 {
 		u.Person.Password = &types.PersonPassword{IsSet: true}
 	} else {
@@ -97,7 +99,7 @@ func (u *User) Put(c appengine.Context) error {
 	// If we are saving for the first time lets get an id so that we
 	// can save the id to the json data before saving the entity. This
 	// prevents us from having to save twice.
-	if u.Key.IntID() == 0 {
+	if u.Key == nil || u.Key.IntID() == 0 {
 		intID, _, err := ds.AllocateIDs(c, "User", nil, 1)
 		if err != nil {
 			return err

@@ -46,11 +46,11 @@ func TestGetOrInsertByAuthID(t *testing.T) {
 
 	u, err := GetOrInsertByAuthID(c, authID)
 	if err != nil {
-		t.Errorf(`err: %q, want: %q`, err, nil)
+		t.Errorf(`err: %v, want: %v`, err, nil)
 	}
 	if len(u.AuthIDs) != 1 {
 		t.Errorf(`len(u.AuthIDs): %v, want %v`, len(u.AuthIDs), 1)
-		t.Errorf(`u.AuthIDs: %q`, u.AuthIDs)
+		t.Errorf(`u.AuthIDs: %v`, u.AuthIDs)
 	}
 
 	// Confirm.
@@ -61,15 +61,11 @@ func TestGetOrInsertByAuthID(t *testing.T) {
 	}
 	if len(u2.AuthIDs) != 1 {
 		t.Errorf(`len(u2.AuthIDs): %v, want %v`, len(u2.AuthIDs), 1)
-		t.Errorf(`u2.AuthIDs: %q`, u2.AuthIDs)
-		t.Errorf(`u2: %q`, u2)
+		t.Errorf(`u2.AuthIDs: %v`, u2.AuthIDs)
+		t.Fatalf(`u2: %v`, u2)
 	}
 	if u2.AuthIDs[0] != authID {
 		t.Errorf(`u2.AuthIDs[0]: %v, want %v`, u2.AuthIDs[0], authID)
-	}
-	q2 := datastore.NewQuery("User")
-	if cnt, _ := q2.Count(c); cnt != 1 {
-		t.Errorf(`User cnt: %v, want 1`, cnt)
 	}
 
 	// Again.
@@ -95,7 +91,7 @@ func TestGetOrInsertByAuthID(t *testing.T) {
 	if u2.AuthIDs[0] != authID {
 		t.Errorf(`u2.AuthIDs[0]: %v, want %v`, u2.AuthIDs[0], authID)
 	}
-	q2 = datastore.NewQuery("User")
+	q2 := datastore.NewQuery("User")
 	if cnt, _ := q2.Count(c); cnt != 1 {
 		t.Errorf(`User cnt: %v, want 1`, cnt)
 	}

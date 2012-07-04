@@ -32,7 +32,7 @@ func CurrentUserSetID(w http.ResponseWriter, r *http.Request, userID int64) erro
 	s, err := session.Store.Get(r, "hal/user")
 	if err != nil {
 		c := appengine.NewContext(r)
-		c.Errorf("hal/user: There was an error retrieving the session\n Error: %v", err)
+		c.Errorf("hal/user: There was an error retrieving the session Error: %v", err)
 		return err
 	}
 	s.Values["userid"] = userID
@@ -54,7 +54,7 @@ func CurrentUserHasRole(w http.ResponseWriter, r *http.Request, role string) (bo
 	s, err := session.Store.Get(r, "hal/user|roles")
 	if err != nil {
 		c := appengine.NewContext(r)
-		c.Errorf("hal/user: There was an error retrieving the session\n Error: %v", err)
+		c.Errorf("hal/user: There was an error retrieving the session Error: %v", err)
 		return false, err
 	}
 
@@ -83,7 +83,7 @@ func CurrentUserSetRole(w http.ResponseWriter, r *http.Request, role string,
 	s, err := session.Store.Get(r, "hal/user")
 	if err != nil {
 		c := appengine.NewContext(r)
-		c.Errorf("hal/user: There was an error retrieving the session\n Error: %v", err)
+		c.Errorf("hal/user: There was an error retrieving the session Error: %v", err)
 		return
 	}
 	s.Values[role] = value
