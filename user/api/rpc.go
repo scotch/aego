@@ -86,6 +86,7 @@ type ChangePasswordReply struct {
 func (us *UserService) ChangePassword(w http.ResponseWriter, r *http.Request,
 	args *ChangePasswordArgs, reply *ChangePasswordReply) error {
 
+	c := appengine.NewContext(r)
 	err := user.ChangePassword(c, args.Email, args.Current, args.New)
 
 	if err != nil {

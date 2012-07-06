@@ -46,20 +46,16 @@ func CreateFromPerson(c appengine.Context, p *types.Person) (*User, error) {
 		if err == nil {
 			return ErrEmailInUse
 		}
-		hash, err := password.GenerateFromPassword([]byte(p.Password.New))
-		if err != nil {
-			return err
-		}
 		// Create a new User
 		u = New()
 		u.Person = p
-		u.Password = hash
+		u.setPassword(p.Password.New)
 		u.Email = p.Email
 		if err = u.Put(c); err != nil {
 			return err
 		}
-		// Update the Email with UserID.
-		e.UserID = u.Key.IntID()
+		// Update the Email with UserId.
+		e.UserId = u.Key.IntID()
 		return e.Put(c)
 		// XG transation
 	}, &datastore.TransactionOptions{XG: true})

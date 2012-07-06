@@ -102,13 +102,13 @@ func TestCurrent(t *testing.T) {
 	if u2.Person.ID != "1" {
 		t.Errorf(`u2.Person.ID: %v, want "1"`, u2.Person.ID)
 	}
-	if u2.Person.Created != u2.Created.Unix() {
+	if u2.Person.Created != u2.Created.UnixNano()/1000000 {
 		t.Errorf(`u2.Created: %v, want %v`, u2.Person.Created,
-			u2.Created.Unix())
+			u2.Created.UnixNano()/1000000)
 	}
-	if u2.Person.Updated != u2.Updated.Unix() {
+	if u2.Person.Updated != u2.Updated.UnixNano()/1000000 {
 		t.Errorf(`u2.Updated: %v, want %v`, u2.Person.Updated,
-			u2.Updated.Unix())
+			u2.Updated.UnixNano()/1000000)
 	}
 	//if u2.Person.Email != u2.Email {
 	//t.Errorf(`u2.Email: %v, want %v`, u2.Person.Email, u2.Email)

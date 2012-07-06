@@ -11,6 +11,15 @@ import (
 	"net/http"
 )
 
+func (u *User) setPassword(password string) (err error) {
+	hash, err := pass.GenerateFromPassword([]byte(password))
+	if err != nil {
+		return
+	}
+	u.Password = hash
+	return
+}
+
 func LoginByEmailAndPassword(w http.ResponseWriter, r *http.Request, emailAddress, password string) (u *User, err error) {
 
 	c := appengine.NewContext(r)
@@ -43,13 +52,27 @@ func ChangePassword(c appengine.Context, emailAddress, currentPassword,
 	// Get the UserId.
 	// TODO(kylefinley) add status check confirm that the email has been
 	// confirmed.
-	e, err = email.Get(c, emailAddress)
+	e, err := email.Get(c, emailAddress)
 	if err != nil {
 		return
 	}
-	u, err = Get(c, e.UserId)
+	u, err := Get(c, e.UserId)
 	if err != nil {
 		return
 	}
-
+	// Compare pasword
+	if err = pass.CompareHashAndPassword(u.Password,
+		[]byte(currentPassword)); err != nil {
+		return
+	}
+	// Set password hash to new value
+	err = u.setPassword(newPassword)
+	if err != nil {
+		return
+	}
+	err = u.Put(c)
+	if err != nil {
+		return
+	}
+	return
 }
