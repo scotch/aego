@@ -105,12 +105,10 @@ func createAndLogin(w http.ResponseWriter, r *http.Request,
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-
 	up := user_profile.New()
 	k := breakURL(r.URL.Path)
 	p := providers[k]
 	url, err := p.Authenticate(w, r, up)
-
 	if err != nil {
 		// TODO: set error message in session.
 		http.Redirect(w, r, LoginURL, http.StatusFound)
@@ -122,15 +120,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, url, http.StatusFound)
 		return
 	}
-
 	// If we don't have a URL or an error then the user has been authenticated.
-
 	// Check the UserProfile for an ID and Provider.
 	if up.ID == "" || up.Provider == "" {
 		panic(`hal/auth: The UserProfile's "ID" or "Provider" is empty.` +
 			`A Key can not be created.`)
 	}
-
 	if _, err = createAndLogin(w, r, up); err != nil {
 		// TODO: set error message in session.
 		http.Redirect(w, r, LoginURL, http.StatusFound)
@@ -139,5 +134,4 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	// If we've made it this far redirect to the SuccessURL
 	http.Redirect(w, r, SuccessURL, http.StatusFound)
 	return
-
 }
