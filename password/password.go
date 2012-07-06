@@ -16,9 +16,8 @@ const (
 )
 
 var (
-	ErrInvalidPassword  = errors.New("hal/user: invalid password")
-	ErrPasswordMismatch = errors.New("hal/user: passwords do not match")
-	ErrPasswordLength   = errors.New("hal/user: passwords must be between 4 and 31 charaters")
+	ErrPasswordMismatch = errors.New("password: passwords do not match")
+	ErrPasswordLength   = errors.New("password: passwords must be between 4 and 31 charaters")
 )
 
 // validatePasswordLength returns true if the supplied string is
@@ -39,7 +38,7 @@ func GenerateFromPassword(password []byte) ([]byte, error) {
 
 func CompareHashAndPassword(hash, password []byte) error {
 	if bcrypt.CompareHashAndPassword(hash, password) != nil {
-		return ErrInvalidPassword
+		return ErrPasswordMismatch
 	}
 	return nil
 }
