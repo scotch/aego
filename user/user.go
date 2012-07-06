@@ -8,15 +8,10 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/scotch/hal/ds"
 	"github.com/scotch/hal/types"
 	"time"
-)
-
-var (
-	ErrNoLoggedInUser = errors.New("hal/user: no logged in user")
 )
 
 // User definition

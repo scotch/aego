@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	ErrEmailInUse = errors.New("hal/user: email in use")
+	ErrEmailInUse = errors.New("user: email in use")
 )
 
 func CreateFromPerson(c appengine.Context, p *types.Person) (*User, error) {
