@@ -62,7 +62,7 @@ func New() *UserProfile {
 // Using this generator is prefered over compiling the key manually to
 // ensure consistency.
 func GenAuthID(provider, id string) string {
-	return fmt.Sprintf("%v|%v", strings.ToLower(provider), id)
+	return fmt.Sprintf("%s|%s", strings.ToLower(provider), id)
 }
 
 // NewKey generates a *datastore.Key based on a string representing
