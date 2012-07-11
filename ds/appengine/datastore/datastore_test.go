@@ -94,15 +94,9 @@ func TestPut(t *testing.T) {
 	c := context.NewContext(nil)
 
 	k, x1 := NewX(c, "1")
-	if cnt := s.Count(c); cnt != 0 {
-		t.Errorf(`Before put; s.Count(c) = %v; want %v`, cnt, 0)
-	}
 	_, err := s.Put(c, k, x1)
 	if err != nil {
 		t.Errorf("err: %v; want: %v.", err, nil)
-	}
-	if cnt := s.Count(c); cnt != 1 {
-		t.Errorf(`After put; s.Count(c): %v; want %v`, cnt, 1)
 	}
 }
 
@@ -111,9 +105,6 @@ func TestPutMulti(t *testing.T) {
 	defer tearDown()
 	c := context.NewContext(nil)
 
-	if cnt := s.Count(c); cnt != 0 {
-		t.Errorf(`Before Put; s.Count(c): %v; want %v`, cnt, 0)
-	}
 	k1, x1 := NewX(c, "X1")
 	k2, x2 := NewX(c, "X2")
 	k3, x3 := NewX(c, "X3")
@@ -123,9 +114,6 @@ func TestPutMulti(t *testing.T) {
 	keys, err := s.PutMulti(c, keys, xs)
 	if err != nil {
 		t.Errorf("err: %v; want: %v.", err, nil)
-	}
-	if cnt := s.Count(c); cnt != 3 {
-		t.Errorf(`After Put; s.Count(c): %v; want %v`, cnt, 3)
 	}
 }
 
@@ -166,10 +154,6 @@ func TestGetMulti(t *testing.T) {
 	setup()
 	defer tearDown()
 	c := context.NewContext(nil)
-
-	if cnt := s.Count(c); cnt != 0 {
-		t.Errorf(`Before Put; s.Count(c): %v; want %v`, cnt, 0)
-	}
 
 	// Put.
 
@@ -228,11 +212,6 @@ func TestDelete(t *testing.T) {
 	err = s.Delete(c, k)
 	if err != nil {
 		t.Errorf("err: %v; want: %v.", err, nil)
-	}
-
-	// Confirm.
-	if cnt := s.Count(c); cnt != 0 {
-		t.Errorf(`After delete; Count: %v; want %v`, cnt, 0)
 	}
 
 	// Delete non-existence
