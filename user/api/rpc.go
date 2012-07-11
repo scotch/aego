@@ -6,6 +6,7 @@ package api
 
 import (
 	"appengine"
+	"appengine/datastore"
 	"code.google.com/p/gorilla/rpc"
 	"code.google.com/p/gorilla/rpc/json"
 	"errors"
@@ -28,6 +29,9 @@ func init() {
 
 type Empty struct{}
 
+type ErrorReply struct {
+	Error *api.Error
+}
 type Person struct {
 	Person *types.Person
 	Error  *api.Error
@@ -62,6 +66,17 @@ func (us *UserService) Login(w http.ResponseWriter, r *http.Request,
 	return nil
 }
 
+func (us *UserService) Logout(w http.ResponseWriter, r *http.Request,
+	args *Person, reply *Person) error {
+
+	if err := user.Logout(w, r); err != nil {
+		reply.Error = api.ConvertError(err)
+		return nil
+	}
+
+	return nil
+}
+
 func (us *UserService) Create(w http.ResponseWriter, r *http.Request,
 	args *Person, reply *Person) error {
 
@@ -75,16 +90,33 @@ func (us *UserService) Create(w http.ResponseWriter, r *http.Request,
 	return nil
 }
 
+func (us *UserService) Update(w http.ResponseWriter, r *http.Request,
+	args *Person, reply *Person) error {
+
+	c := appengine.NewContext(r)
+	u, err := user.Current(r)
+
+	k := datastore.NewKey(c, "User", string(args.Person.ID), 0, nil)
+	if ok := u.Can(c, "write", k); ok == false {
+		reply.Error = &api.Error{Code: 401, Message: "user: unauthorized"}
+		return nil
+	}
+
+	u, err = user.UpdateFromPerson(c, args.Person)
+	if err != nil {
+		reply.Error = api.ConvertError(err)
+		return nil
+	}
+	reply.Person = u.Person
+	return nil
+}
+
 type ChangePasswordArgs struct {
 	Email, Current, New string
 }
 
-type ChangePasswordReply struct {
-	Error *api.Error
-}
-
 func (us *UserService) ChangePassword(w http.ResponseWriter, r *http.Request,
-	args *ChangePasswordArgs, reply *ChangePasswordReply) error {
+	args *ChangePasswordArgs, reply *ErrorReply) error {
 
 	c := appengine.NewContext(r)
 	err := user.ChangePassword(c, args.Email, args.Current, args.New)

@@ -88,7 +88,9 @@ func (u *User) Encode() error {
 }
 
 // Put is a convience method to save the User to the datastore and
-// updated the Updated property to time.Now().
+// updated the Updated property to time.Now(). This method should
+// always be usdd when saving a user, fore it does some necessary
+// preprocessing.
 func (u *User) Put(c appengine.Context) error {
 
 	// If we are saving for the first time lets get an id so that we

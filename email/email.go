@@ -58,11 +58,10 @@ func New() *Email {
 	}
 }
 
-func (e *Email) Put(c appengine.Context) error {
+func (e *Email) Put(c appengine.Context) (err error) {
 	e.Updated = time.Now()
-	key, err := ds.Put(c, e.Key, e)
-	e.Key = key
-	return err
+	e.Key, err = ds.Put(c, e.Key, e)
+	return
 }
 
 func Get(c appengine.Context, address string) (*Email, error) {

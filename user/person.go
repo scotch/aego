@@ -12,31 +12,34 @@ import (
 	"github.com/scotch/hal/email"
 	"github.com/scotch/hal/password"
 	"github.com/scotch/hal/types"
+	"strconv"
 )
 
 var (
 	ErrEmailInUse = errors.New("user: email in use")
 )
 
-func CreateFromPerson(c appengine.Context, p *types.Person) (*User, error) {
-
-	var err error
-	var u *User
-
+func validatePerson(p *types.Person) (err error) {
 	// Ensure that the email is an actually email.
 	if err = email.Validate(p.Email); err != nil {
-		return nil, err
+		return
 	}
 	// Ensure that the password is the approprate length
 	if err = password.Validate(p.Password.New); err != nil {
-		return nil, err
+		return
 	}
+	return
+}
 
+func CreateFromPerson(c appengine.Context, p *types.Person) (u *User, err error) {
+
+	if err = validatePerson(p); err != nil {
+		return
+	}
 	// Transaction Action
 	err = datastore.RunInTransaction(c, func(c appengine.Context) error {
-		var e *email.Email
 		// Get the email
-		e, err = email.Get(c, p.Email)
+		e, err := email.Get(c, p.Email)
 		// An error that is not an ErrNoSuchEntity indicates an an internal error
 		// and it should be returned.
 		if err != nil && err != dserrors.ErrNoSuchEntity {
@@ -59,6 +62,33 @@ func CreateFromPerson(c appengine.Context, p *types.Person) (*User, error) {
 		return e.Put(c)
 		// XG transation
 	}, &datastore.TransactionOptions{XG: true})
+
+	return u, err
+}
+
+func UpdateFromPerson(c appengine.Context, p *types.Person) (u *User, err error) {
+
+	if err = validatePerson(p); err != nil {
+		return
+	}
+	// Transaction Action
+	err = datastore.RunInTransaction(c, func(c appengine.Context) error {
+
+		// Get the user
+		id, _ := strconv.ParseInt(p.ID, 10, 64)
+		u, err := Get(c, id)
+		if err != nil {
+			return err
+		}
+		u.Person = p
+		if p.Password.New != "" {
+			u.setPassword(p.Password.New)
+		}
+		// TODO more care needs to be taken when changing emails.
+		u.Email = p.Email
+		return u.Put(c)
+		// XG transation
+	}, &datastore.TransactionOptions{XG: false})
 
 	return u, err
 }
