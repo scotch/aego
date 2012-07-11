@@ -10,6 +10,7 @@ import (
 	"code.google.com/p/gorilla/rpc"
 	"code.google.com/p/gorilla/rpc/json"
 	"errors"
+	"fmt"
 	"github.com/scotch/hal/api"
 	"github.com/scotch/hal/types"
 	"github.com/scotch/hal/user"
@@ -96,7 +97,8 @@ func (us *UserService) Update(w http.ResponseWriter, r *http.Request,
 	c := appengine.NewContext(r)
 	u, err := user.Current(r)
 
-	k := datastore.NewKey(c, "User", string(args.Person.ID), 0, nil)
+	k := datastore.NewKey(c, "User", args.Person.ID, 0, nil)
+	u.Key.StringID()
 	if ok := u.Can(c, "write", k); ok == false {
 		reply.Error = &api.Error{Code: 401, Message: "user: unauthorized"}
 		return nil

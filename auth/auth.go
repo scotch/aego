@@ -96,7 +96,7 @@ func createAndLogin(w http.ResponseWriter, r *http.Request,
 	if err != nil {
 		// If the User isn't logged in. Create an User and log them in.
 		u, err = user.GetOrInsertByAuthID(c, up.Key.StringID())
-		_ = user.CurrentUserSetID(w, r, u.Key.IntID())
+		_ = user.CurrentUserSetID(w, r, u.Key.StringID())
 		return
 	}
 	u.AddAuthID(up.Key.StringID())

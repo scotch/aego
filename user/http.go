@@ -16,7 +16,7 @@ var config = map[string]string{
 // User is not logged in, they will be redirect to the login page.
 func LoginRequired(fn http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if userid, _ := CurrentUserID(r); userid == 0 {
+		if id, _ := CurrentUserID(r); id == "" {
 			http.Redirect(w, r, config["login_url"], http.StatusForbidden)
 		}
 		fn(w, r)

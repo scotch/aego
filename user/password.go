@@ -37,7 +37,7 @@ func LoginByEmailAndPassword(w http.ResponseWriter, r *http.Request, emailAddres
 		return
 	}
 	// We made it. Log in the User
-	err = CurrentUserSetID(w, r, u.Key.IntID())
+	err = CurrentUserSetID(w, r, u.Key.StringID())
 	return
 }
 

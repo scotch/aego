@@ -21,7 +21,7 @@ func TestCurrentUserID(t *testing.T) {
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
-	if userID != 0 {
+	if userID != "" {
 		t.Errorf(`userID: %v, want 0`, userID)
 	}
 }
@@ -32,7 +32,7 @@ func TestSetCurrentUserID(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "http://localhost:8080/", nil)
-	var userID int64 = 1
+	var userID string = "1"
 	err := CurrentUserSetID(w, r, userID)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
@@ -44,8 +44,8 @@ func TestSetCurrentUserID(t *testing.T) {
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
-	if id != 1 {
-		t.Errorf(`userID: %v, want 1`, userID)
+	if id != "1" {
+		t.Errorf(`userID: %v, want "1"`, userID)
 	}
 }
 
@@ -61,7 +61,7 @@ func TestCurrent(t *testing.T) {
 
 	u := New()
 	u.Email = "test@example.com"
-	u.Key = datastore.NewKey(c, "User", "", 1, nil)
+	u.Key = datastore.NewKey(c, "User", "1", 0, nil)
 	err := u.Put(c)
 	if err != nil {
 		t.Fatalf(`err: %v, want nil`, err)
@@ -76,7 +76,7 @@ func TestCurrent(t *testing.T) {
 
 	// Login User.
 
-	var userID int64 = 1
+	var userID string = "1"
 	err = CurrentUserSetID(w, r, userID)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
@@ -85,15 +85,15 @@ func TestCurrent(t *testing.T) {
 	// Get Current.
 
 	id, err := CurrentUserID(r)
-	if id != 1 {
-		t.Errorf(`userID: %v, want 1`, userID)
+	if id != "1" {
+		t.Errorf(`userID: %v, want "1"`, userID)
 	}
 	u2, err := Current(r)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
-	if u2.Key.IntID() != 1 {
-		t.Errorf(`u2.Key.IntID(): %v, want 1`, u2.Key.IntID())
+	if u2.Key.StringID() != "1" {
+		t.Errorf(`u2.Key.StringID(): %v, want 1`, u2.Key.StringID())
 	}
 	if u2.Email != "test@example.com" {
 		t.Errorf(`u2.Email: %v, want test@example.com`, u2.Email)

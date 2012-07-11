@@ -42,7 +42,7 @@ const (
 type Email struct {
 	Key     *datastore.Key `datastore:"-"`
 	Address string
-	UserId  int64
+	UserId  string
 	Status  int64
 	// Created is a time.Time of when the Email was first created.
 	Created time.Time

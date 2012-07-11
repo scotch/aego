@@ -108,7 +108,7 @@ type Image struct {
 // 
 // func (e *Entity) Encode() error {
 // 	if e.Data != nil {
-// 		e.Data.ID = fmt.Sprintf("%v", e.Key.IntID())
+// 		e.Data.ID = fmt.Sprintf("%v", e.Key.StringID())
 // 		j, err := json.Marshal(e.Data)
 // 		e.JSON = j
 // 		return err

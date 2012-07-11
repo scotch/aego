@@ -213,8 +213,8 @@ func Test_createAndLogin(t *testing.T) {
 		t.Errorf(`err: %v, want nil`, err)
 	}
 
-	if u.Key.IntID() != 1 {
-		t.Errorf(`u.Key.IntID(): %v, want 1`, u.Key.IntID())
+	if u.Key.StringID() != "1" {
+		t.Errorf(`u.Key.StringID(): %v, want 1`, u.Key.StringID())
 	}
 	if up.Key.StringID() != "example|1" {
 		t.Errorf(`up.Key.StringID(): %v, want "example|1"`, up.Key.StringID())
@@ -236,15 +236,15 @@ func Test_createAndLogin(t *testing.T) {
 
 	// Confirm User.
 
-	ru, err := user.Get(c, 1)
+	ru, err := user.Get(c, "1")
 	if err != nil {
 		t.Fatalf(`err: %v, want nil`, err)
 	}
 	if ru.AuthIDs[0] != "example|1" {
 		t.Errorf(`ru.AuthIDs[0]: %v, want "example|1"`, ru.AuthIDs[0])
 	}
-	if ru.Key.IntID() != 1 {
-		t.Errorf(`ru.Key.IntID(): %v, want 1`, ru.Key.IntID())
+	if ru.Key.StringID() != "1" {
+		t.Errorf(`ru.Key.StringID(): %v, want 1`, ru.Key.StringID())
 	}
 	q2 := datastore.NewQuery("User")
 	if cnt, _ := q2.Count(c); cnt != 1 {
@@ -261,8 +261,8 @@ func Test_createAndLogin(t *testing.T) {
 	if err != nil {
 		t.Errorf(`err: %v, want %v`, err, nil)
 	}
-	if u.Key.IntID() != 1 {
-		t.Errorf(`u.Key.IntID(): %v, want 1`, u.Key.IntID())
+	if u.Key.StringID() != "1" {
+		t.Errorf(`u.Key.StringID(): %v, want 1`, u.Key.StringID())
 	}
 	if len(u.AuthIDs) != 1 {
 		t.Errorf(`len(u.AuthIDs): %v, want 1`, len(u.AuthIDs))
@@ -288,8 +288,8 @@ func Test_createAndLogin(t *testing.T) {
 	if err != nil {
 		t.Errorf(`err: %v, want %v`, err, nil)
 	}
-	if u.Key.IntID() != 1 {
-		t.Errorf(`u.Key.IntID(): %v, want 1`, u.Key.IntID())
+	if u.Key.StringID() != "1" {
+		t.Errorf(`u.Key.StringID(): %v, want 1`, u.Key.StringID())
 	}
 	if len(u.AuthIDs) != 2 {
 		t.Errorf(`len(u.AuthIDs): %v, want 2`, len(u.AuthIDs))
@@ -355,12 +355,12 @@ func Test_createAndLogin(t *testing.T) {
 	if err != nil {
 		t.Errorf(`err: %v, want %v`, err, nil)
 	}
-	if u.Key.IntID() != 1 {
-		t.Errorf(`k.IntID(): %v, want 1`, u.Key.IntID())
+	if u.Key.StringID() != "1" {
+		t.Errorf(`u.Key.StringID(): %v, want "1"`, u.Key.StringID())
 	}
 	if len(u.AuthIDs) != 2 {
 		t.Errorf(`len(u.AuthIDs): %v, want 2`, len(u.AuthIDs))
-		t.Errorf(`u.AuthIDs: %v`, u.AuthIDs)
+		t.Errorf(`u.AuthIDs: %s`, u.AuthIDs)
 		t.Errorf(`u: %v`, u)
 	}
 }

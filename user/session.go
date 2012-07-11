@@ -18,25 +18,25 @@ var (
 	ErrNoLoggedInUser = errors.New("user: no logged in user")
 )
 
-// CurrentUserID returns the userID of the requesting user.
-func CurrentUserID(r *http.Request) (int64, error) {
+// CurrentUserID returns the userId of the requesting user.
+func CurrentUserID(r *http.Request) (string, error) {
 	s, err := session.Store.Get(r, "user")
 	if err != nil {
-		return 0, err
+		return "", err
 	}
-	userID, _ := s.Values["userid"].(int64)
-	return userID, err
+	id, _ := s.Values["userid"].(string)
+	return id, err
 }
 
-// CurrentUserSetID adds the provided userID to the current users session/cookie
-func CurrentUserSetID(w http.ResponseWriter, r *http.Request, userID int64) error {
+// CurrentUserSetID adds the provided userId to the current users session/cookie
+func CurrentUserSetID(w http.ResponseWriter, r *http.Request, userId string) error {
 	s, err := session.Store.Get(r, "user")
 	if err != nil {
 		c := appengine.NewContext(r)
 		c.Errorf("user: There was an error retrieving the session Error: %v", err)
 		return err
 	}
-	s.Values["userid"] = userID
+	s.Values["userid"] = userId
 
 	return s.Save(r, w)
 }
@@ -46,12 +46,12 @@ func CurrentUserSetID(w http.ResponseWriter, r *http.Request, userID int64) erro
 // information that is saved in the datastore. If they don't an error is
 // returned.
 func Current(r *http.Request) (*User, error) {
-	userID, _ := CurrentUserID(r)
+	id, _ := CurrentUserID(r)
 
-	if userID != 0 {
+	if id != "" {
 		c := context.NewContext(r)
 		u := new(User)
-		key := datastore.NewKey(c, "User", "", userID, nil)
+		key := datastore.NewKey(c, "User", id, 0, nil)
 		err := ds.Get(c, key, u)
 		u.Key = key
 		return u, err
@@ -59,7 +59,8 @@ func Current(r *http.Request) (*User, error) {
 	return nil, ErrNoLoggedInUser
 }
 
-// Logout sets the session userid to 0, effectivly logging the user out.
+// Logout sets the session userid to "", effectivly logging the user out.
+// TODO maybe delete cookie, instead.
 func Logout(w http.ResponseWriter, r *http.Request) error {
-	return CurrentUserSetID(w, r, 0)
+	return CurrentUserSetID(w, r, "")
 }

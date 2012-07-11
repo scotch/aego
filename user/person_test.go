@@ -44,8 +44,8 @@ func TestCreateFromPerson(t *testing.T) {
 		t.Errorf(`u.Email: %v, want %v`, u.Email, p.Email)
 	}
 
-	if u.Person.ID != fmt.Sprintf("%v", u.Key.IntID()) {
-		t.Errorf(`u.Person.ID: %v, want %v`, u.Person.ID, u.Key.IntID())
+	if u.Person.ID != fmt.Sprintf("%v", u.Key.StringID()) {
+		t.Errorf(`u.Person.ID: %v, want %v`, u.Person.ID, u.Key.StringID())
 	}
 
 	// Check password

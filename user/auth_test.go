@@ -55,7 +55,7 @@ func TestGetOrInsertByAuthID(t *testing.T) {
 
 	// Confirm.
 
-	u2, err := Get(c, u.Key.IntID())
+	u2, err := Get(c, u.Key.StringID())
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -79,7 +79,7 @@ func TestGetOrInsertByAuthID(t *testing.T) {
 
 	// Confirm.
 
-	u2, err = Get(c, u.Key.IntID())
+	u2, err = Get(c, u.Key.StringID())
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}

@@ -22,7 +22,7 @@ func (u *User) Can(c appengine.Context, perm string, key *datastore.Key) bool {
 		return true
 	}
 	// Other permissions must be set.
-	id := fmt.Sprintf("%s", u.Key.IntID())
+	id := fmt.Sprintf("%s", u.Key.StringID())
 	if ok, _ := acl.Can(c, id, perm, key); ok {
 		return true
 	}

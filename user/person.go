@@ -12,7 +12,6 @@ import (
 	"github.com/scotch/hal/email"
 	"github.com/scotch/hal/password"
 	"github.com/scotch/hal/types"
-	"strconv"
 )
 
 var (
@@ -58,7 +57,7 @@ func CreateFromPerson(c appengine.Context, p *types.Person) (u *User, err error)
 			return err
 		}
 		// Update the Email with UserId.
-		e.UserId = u.Key.IntID()
+		e.UserId = u.Key.StringID()
 		return e.Put(c)
 		// XG transation
 	}, &datastore.TransactionOptions{XG: true})
@@ -75,8 +74,7 @@ func UpdateFromPerson(c appengine.Context, p *types.Person) (u *User, err error)
 	err = datastore.RunInTransaction(c, func(c appengine.Context) error {
 
 		// Get the user
-		id, _ := strconv.ParseInt(p.ID, 10, 64)
-		u, err := Get(c, id)
+		u, err := Get(c, p.ID)
 		if err != nil {
 			return err
 		}

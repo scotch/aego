@@ -8,7 +8,6 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"encoding/json"
-	"fmt"
 	"github.com/scotch/hal/ds"
 	"github.com/scotch/hal/types"
 	"time"
@@ -69,7 +68,7 @@ func (u *User) Encode() error {
 	if u.Person == nil {
 		u.Person = new(types.Person)
 	}
-	u.Person.ID = fmt.Sprintf("%v", u.Key.IntID())
+	u.Person.ID = u.Key.StringID()
 	// TODO(kylefinley) consider alternatives to returning miliseconds.
 	// Convert time to unix miliseconds for javascript
 	u.Person.Created = u.Created.UnixNano() / 1000000
@@ -96,12 +95,12 @@ func (u *User) Put(c appengine.Context) error {
 	// If we are saving for the first time lets get an id so that we
 	// can save the id to the json data before saving the entity. This
 	// prevents us from having to save twice.
-	if u.Key == nil || u.Key.IntID() == 0 {
-		intID, _, err := ds.AllocateIDs(c, "User", nil, 1)
+	if u.Key == nil || u.Key.StringID() == "" {
+		id, err := ds.AllocateID(c, "User")
 		if err != nil {
 			return err
 		}
-		u.Key = datastore.NewKey(c, "User", "", intID, nil)
+		u.Key = datastore.NewKey(c, "User", id, 0, nil)
 	}
 	u.Updated = time.Now()
 	u.Encode()
@@ -122,9 +121,9 @@ func (u *User) HasRole(role string) bool {
 }
 
 // Get is a convience method for retrieveing an entity foom the store.
-func Get(c appengine.Context, id int64) (u *User, err error) {
+func Get(c appengine.Context, id string) (u *User, err error) {
 	u = &User{}
-	key := datastore.NewKey(c, "User", "", id, nil)
+	key := datastore.NewKey(c, "User", id, 0, nil)
 	err = ds.Get(c, key, u)
 	u.Key = key
 	u.Decode()

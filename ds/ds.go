@@ -35,6 +35,7 @@ package ds
 import (
 	"appengine"
 	"appengine/datastore"
+	"fmt"
 	dsdatastore "github.com/scotch/hal/ds/appengine/datastore"
 	dsmemcache "github.com/scotch/hal/ds/appengine/memcache"
 	dsmemory "github.com/scotch/hal/ds/memory"
@@ -202,4 +203,10 @@ func AllocateIDs(c appengine.Context, kind string, parent *datastore.Key, n int)
 	//var l int64
 	l := t.UnixNano()
 	return l, l + int64(n), nil
+}
+
+// AllocateID ruturns a single Id and returns it as a string.
+func AllocateID(c appengine.Context, kind string) (string, error) {
+	id, _, err := AllocateIDs(c, kind, nil, 1)
+	return fmt.Sprint(id), err
 }

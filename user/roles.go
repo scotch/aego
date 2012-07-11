@@ -14,7 +14,7 @@ import (
 func CurrentUserHasRole(w http.ResponseWriter, r *http.Request, role string) (bool, error) {
 
 	// Confirm we have a user.
-	if id, err := CurrentUserID(r); id != 0 || err != nil {
+	if id, err := CurrentUserID(r); id != "" || err != nil {
 		return false, err
 	}
 	// 1st Check the session.
