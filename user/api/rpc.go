@@ -10,7 +10,6 @@ import (
 	"code.google.com/p/gorilla/rpc"
 	"code.google.com/p/gorilla/rpc/json"
 	"errors"
-	"fmt"
 	"github.com/scotch/hal/api"
 	"github.com/scotch/hal/types"
 	"github.com/scotch/hal/user"
