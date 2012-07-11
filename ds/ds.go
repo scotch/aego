@@ -192,7 +192,7 @@ func Delete(c appengine.Context, key *datastore.Key) (err error) {
 }
 
 func AllocateIDs(c appengine.Context, kind string, parent *datastore.Key, n int) (low, high int64, err error) {
-	// TODO: added for testing. Allocating IDs for mememache ane memory
+	// TODO: added for testing. Allocating IDs for mememache and memory
 	// should not be used in production.
 	sc := getConfig(kind)
 	if sc.Datastore {
