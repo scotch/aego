@@ -25,24 +25,24 @@ func put(c appengine.Context, key *datastore.Key) (p *Perm, err error) {
 	_, err = ds.Put(c, key, p)
 	return
 }
-func genKey(c appengine.Context, group, perm string, objKey *datastore.Key) (
-	key *datastore.Key) {
-
-	id := fmt.Sprintf("%s|%s", strings.ToLower(perm), group)
-	key = datastore.NewKey(c, "Perm", id, 0, objKey)
-	return
+func genId(objKey, groupId, perm string, objKey *datastore.Key) string {
+	return fmt.Sprintf("%s|%s|%s", objKey.String(), groupId, strings.ToLower(perm))
 }
 
-func Auth(c appengine.Context, group, perm string, objKey *datastore.Key) error {
-	key := genKey(c, group, perm, objKey)
+func genKey(c appengine.Context, groupId, perm string, objKey *datastore.Key) *datastore.Key {
+	return datastore.NewKey(c, "Perm", genId(objKey, groupId, objKey), 0, nil)
+}
+
+func Auth(c appengine.Context, groupId, perm string, objKey *datastore.Key) error {
+	key := genKey(c, groupId, perm, objKey)
 	if _, err := put(c, key); err != nil {
 		return err
 	}
 	return nil
 }
 
-func Can(c appengine.Context, group, perm string, objKey *datastore.Key) (bool, error) {
-	key := genKey(c, group, perm, objKey)
+func Can(c appengine.Context, groupId, perm string, objKey *datastore.Key) (bool, error) {
+	key := genKey(c, groupId, perm, objKey)
 	if _, err := get(c, key); err != nil {
 		return false, err
 	}

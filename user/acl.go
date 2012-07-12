@@ -13,12 +13,12 @@ import (
 
 // Can check if the user has permission to perform the action.
 func (u *User) Can(c appengine.Context, perm string, key *datastore.Key) bool {
-	// Admins can do anything.
-	if ok := u.HasRole("admin"); ok {
+	// Users can do anything to their own user object.
+	if key.Kind() == "User" && u.Key.StringID() == key.StringID() {
 		return true
 	}
-	// Users can do anything to their own user object.
-	if u.Key == key {
+	// Admins can do anything.
+	if ok := u.HasRole("admin"); ok {
 		return true
 	}
 	// Other permissions must be set.
