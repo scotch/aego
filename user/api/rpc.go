@@ -32,6 +32,7 @@ type Empty struct{}
 type ErrorReply struct {
 	Error *api.Error
 }
+
 type Person struct {
 	Person *types.Person
 	Error  *api.Error
@@ -42,8 +43,7 @@ type UserService struct{}
 func (us *UserService) Current(w http.ResponseWriter, r *http.Request,
 	args *Empty, reply *Person) error {
 
-	u, err := user.Current(r)
-	if err != nil {
+	if u, err := user.Current(r); err != nil {
 		reply.Error = api.ConvertError(err)
 		return nil
 	}
@@ -54,15 +54,13 @@ func (us *UserService) Current(w http.ResponseWriter, r *http.Request,
 func (us *UserService) Login(w http.ResponseWriter, r *http.Request,
 	args *Person, reply *Person) error {
 
-	u, err := user.LoginByEmailAndPassword(
-		w, r, args.Person.Email, args.Person.Password.New)
-
+	u, err := user.LoginByEmailAndPassword(w, r,
+		args.Person.Email, args.Person.Password.New)
 	if err != nil {
 		reply.Error = api.ConvertError(err)
 		return nil
 	}
 	reply.Person = u.Person
-
 	return nil
 }
 
@@ -73,7 +71,6 @@ func (us *UserService) Logout(w http.ResponseWriter, r *http.Request,
 		reply.Error = api.ConvertError(err)
 		return nil
 	}
-
 	return nil
 }
 
@@ -95,16 +92,12 @@ func (us *UserService) Update(w http.ResponseWriter, r *http.Request,
 
 	c := appengine.NewContext(r)
 	u, err := user.Current(r)
-
 	k := datastore.NewKey(c, "User", args.Person.ID, 0, nil)
-	u.Key.StringID()
-	if ok := u.Can(c, "write", k); ok == false {
+	if can := u.Can(c, "write", k); can == false {
 		reply.Error = &api.Error{Code: 401, Message: "user: unauthorized"}
 		return nil
 	}
-
-	u, err = user.UpdateFromPerson(c, args.Person)
-	if err != nil {
+	if u, err = user.UpdateFromPerson(c, args.Person); err != nil {
 		reply.Error = api.ConvertError(err)
 		return nil
 	}
@@ -120,9 +113,7 @@ func (us *UserService) ChangePassword(w http.ResponseWriter, r *http.Request,
 	args *ChangePasswordArgs, reply *ErrorReply) error {
 
 	c := appengine.NewContext(r)
-	err := user.ChangePassword(c, args.Email, args.Current, args.New)
-
-	if err != nil {
+	if err := user.ChangePassword(c, args.Email, args.Current, args.New); err != nil {
 		reply.Error = api.ConvertError(err)
 		return nil
 	}

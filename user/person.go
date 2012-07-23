@@ -23,9 +23,11 @@ func validatePerson(p *types.Person) (err error) {
 	if err = email.Validate(p.Email); err != nil {
 		return
 	}
-	// Ensure that the password is the approprate length
-	if err = password.Validate(p.Password.New); err != nil {
-		return
+	if len(p.Password.New) > 0 {
+		// Ensure that the password is the approprate length
+		if err = password.Validate(p.Password.New); err != nil {
+			return
+		}
 	}
 	return
 }
@@ -35,6 +37,7 @@ func CreateFromPerson(c appengine.Context, p *types.Person) (u *User, err error)
 	if err = validatePerson(p); err != nil {
 		return
 	}
+
 	// Transaction Action
 	err = datastore.RunInTransaction(c, func(c appengine.Context) error {
 		// Get the email
@@ -70,11 +73,12 @@ func UpdateFromPerson(c appengine.Context, p *types.Person) (u *User, err error)
 	if err = validatePerson(p); err != nil {
 		return
 	}
+
 	// Transaction Action
 	err = datastore.RunInTransaction(c, func(c appengine.Context) error {
 
 		// Get the user
-		u, err := Get(c, p.ID)
+		u, err = Get(c, p.ID)
 		if err != nil {
 			return err
 		}
