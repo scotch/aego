@@ -21,7 +21,7 @@ func TestCan(t *testing.T) {
 	// User key
 	key := datastore.NewKey(c, "User", "1", 0, nil)
 	u.Key = key
-	if ok := u.Can(c, "write", key); ok {
+	if !u.Can(c, "write", key) {
 		t.Error(`User should be able to "write" their own User object`)
 	}
 }

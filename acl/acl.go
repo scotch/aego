@@ -25,12 +25,12 @@ func put(c appengine.Context, key *datastore.Key) (p *Perm, err error) {
 	_, err = ds.Put(c, key, p)
 	return
 }
-func genId(objKey *datastore.Key, groupId, perm string) string {
+func genID(objKey *datastore.Key, groupId, perm string) string {
 	return fmt.Sprintf("%s|%s|%s", objKey.String(), groupId, strings.ToLower(perm))
 }
 
 func genKey(c appengine.Context, groupId, perm string, objKey *datastore.Key) *datastore.Key {
-	return datastore.NewKey(c, "Perm", genId(objKey, groupId, perm), 0, nil)
+	return datastore.NewKey(c, "Perm", genID(objKey, groupId, perm), 0, nil)
 }
 
 func Auth(c appengine.Context, groupId, perm string, objKey *datastore.Key) error {

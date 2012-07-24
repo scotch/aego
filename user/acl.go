@@ -7,7 +7,6 @@ package user
 import (
 	"appengine"
 	"appengine/datastore"
-	"fmt"
 	"github.com/scotch/hal/acl"
 )
 
@@ -18,12 +17,11 @@ func (u *User) Can(c appengine.Context, perm string, key *datastore.Key) bool {
 		return true
 	}
 	// Admins can do anything.
-	if ok := u.HasRole("admin"); ok {
+	if u.HasRole("admin") {
 		return true
 	}
 	// Other permissions must be set.
-	id := fmt.Sprintf("%s", u.Key.StringID())
-	if ok, _ := acl.Can(c, id, perm, key); ok {
+	if ok, _ := acl.Can(c, u.Key.String(), perm, key); ok {
 		return true
 	}
 	return false
