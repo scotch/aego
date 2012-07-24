@@ -27,7 +27,7 @@ func LoginRequired(fn http.HandlerFunc) http.HandlerFunc {
 // User is *not* an admin, they will redirect to the login page.
 func AdminRequired(fn http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if hasRole, err := CurrentUserHasRole(w, r, "admin"); hasRole == false || err != nil {
+		if !CurrentUserHasRole(w, r, "admin") {
 			http.Redirect(w, r, config["login_url"], http.StatusForbidden)
 		}
 		fn(w, r)

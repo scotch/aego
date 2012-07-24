@@ -109,17 +109,6 @@ func (u *User) Put(c appengine.Context) error {
 	return err
 }
 
-// IsAdmin returns true if the requesting user is an admin;
-// otherwise returns false.
-func (u *User) HasRole(role string) bool {
-	for _, r := range u.Roles {
-		if r == role {
-			return true
-		}
-	}
-	return false
-}
-
 // Get is a convience method for retrieveing an entity foom the store.
 func Get(c appengine.Context, id string) (u *User, err error) {
 	u = &User{}

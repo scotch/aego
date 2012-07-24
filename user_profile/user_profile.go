@@ -35,6 +35,8 @@ type UserProfile struct {
 	// originator of the authentication. For example Google plus would
 	// be http://plus.google.com and not http://google.com.
 	ProviderURL string `datastore:",noindex"`
+	// UserID is the string ID of the User that the UserProfile belongs to.
+	UserID string
 	// Auth maybe used by the provodier to store any information that it
 	// may need.
 	Auth []byte
@@ -80,12 +82,16 @@ func Get(c appengine.Context, id string, up *UserProfile) (err error) {
 	return
 }
 
+func (u *UserProfile) SetKey(c appengine.Context) {
+	u.Key = NewKey(c, u.Provider, u.ID)
+}
+
 // Put is a convience method to save the UserProfile to the datastore and
 // updated the Updated property to time.Now().
 func (u *UserProfile) Put(c appengine.Context) error {
 	u.Updated = time.Now()
+	u.SetKey(c)
 	// TODO add error handeling for empty Provider and ID
-	u.Key = NewKey(c, u.Provider, u.ID)
 	key, err := ds.Put(c, u.Key, u)
 	u.Key = key
 	return err
@@ -102,41 +108,3 @@ func (u *UserProfile) Person() (*types.Person, error) {
 	err := json.Unmarshal(u.PersonJSON, p)
 	return p, err
 }
-
-// check aborts the current execution if err is non-nil.
-func check(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-//// GetOrInsert creates a UserProfile using the email address as the key.
-//// If a UserProfile already exists it updates it instead.
-//func GetOrInsert(c appengine.Context, provider, id string,
-//	auth, person, personRaw []byte) (*datastore.Key, error) {
-//
-//	key := datastore.NewKey(c, "UserProfile", id, 0, nil)
-//	err := datastore.RunInTransaction(c, func(c appengine.Context) error {
-//		e := new(UserProfile)
-//		err := datastore.Get(c, key, e)
-//		if err != nil && err != datastore.ErrNoSuchEntity {
-//			c.Errorf("CreateOrUpdate err: %v", err)
-//			check(err)
-//			return nil
-//		}
-//		// If a profile dosen't exist; create it.
-//		if err == datastore.ErrNoSuchEntity {
-//			e.Created = time.Now()
-//		}
-//		e.Provider = provider
-//		e.Updated = time.Now()
-//		e.Auth = auth
-//		e.Person = person
-//		e.PersonRaw = personRaw
-//		if _, err := datastore.Put(c, key, e); err != nil {
-//			check(err)
-//		}
-//		return nil
-//	}, nil)
-//	return key, err
-//}
