@@ -24,7 +24,10 @@ Example Usage:
 package auth
 
 import (
+	"appengine/datastore"
+	aeuser "appengine/user"
 	"github.com/scotch/hal/context"
+	"github.com/scotch/hal/ds"
 	"github.com/scotch/hal/user"
 	"github.com/scotch/hal/user_profile"
 	"net/http"
@@ -86,21 +89,63 @@ func breakURL(url string) (name string) {
 func createAndLogin(w http.ResponseWriter, r *http.Request,
 	up *user_profile.UserProfile) (u *user.User, err error) {
 
+	var id string
+	var idUP string
+	var idSess string
+	var saveUser bool
+
 	c := context.NewContext(r)
-	// Save it.
+	up.SetKey(c)
+	// Check the session for a UserID
+	idSess, _ = user.CurrentUserID(r)
+	// Check for an existing UserProfile
+	up2 := user_profile.New()
+	if err := user_profile.Get(c, up.Key.StringID(), up2); err == nil {
+		idSess = up2.UserID
+	}
+	if idUP != "" || idSess != "" {
+		if idUP == idSess {
+			id = idSess
+		} else {
+			// TODO implement some type of user merge here.
+			// for the time being use the logged in User's ID
+			id = idSess
+		}
+		// Get the user
+		if u, err = user.Get(c, id); err != nil {
+			// if user is not found we have some type of syncing problem.
+			c.Criticalf(`auth: userID: %v was saved to session/UserProfile, but was not found in the datastore`, id)
+			return
+		}
+	} else {
+		// New user
+		id, _ = ds.AllocateID(c, "User")
+		u = user.New()
+		u.Key = datastore.NewKey(c, "User", id, 0, nil)
+		//u.AuthIDs = []string{u.Key.StringID()}
+		saveUser = true
+	}
+	// Add AuthID
+	if u.AddAuthID(up.Key.StringID()) {
+		saveUser = true
+	}
+	// If current user is an admin in GAE add role to User
+	if aeuser.IsAdmin(c) {
+		// Save the roll to the session
+		_ = user.CurrentUserSetRole(w, r, "admin", true)
+		// Add the role to the user's roles.
+		if u.AddRole("admin") {
+			saveUser = true
+		}
+	}
+	// Log the user in.
+	_ = user.CurrentUserSetID(w, r, u.Key.StringID())
+	if saveUser {
+		err = u.Put(c)
+	}
+	// TODO should the UserProfile always be saved?
+	up.UserID = u.Key.StringID()
 	err = up.Put(c)
-	if err != nil {
-		return
-	}
-	u, err = user.Current(r)
-	if err != nil {
-		// If the User isn't logged in. Create an User and log them in.
-		u, err = user.GetOrInsertByAuthID(c, up.Key.StringID())
-		_ = user.CurrentUserSetID(w, r, u.Key.StringID())
-		return
-	}
-	u.AddAuthID(up.Key.StringID())
-	err = u.Put(c)
 	return
 }
 

@@ -219,6 +219,9 @@ func Test_createAndLogin(t *testing.T) {
 	if up.Key.StringID() != "example|1" {
 		t.Errorf(`up.Key.StringID(): %v, want "example|1"`, up.Key.StringID())
 	}
+	if up.UserID != u.Key.StringID() {
+		t.Errorf(`up.UserID: %v, want %v`, up.UserID, u.Key.StringID())
+	}
 
 	// Confirm UserProfile.
 
@@ -232,6 +235,9 @@ func Test_createAndLogin(t *testing.T) {
 	}
 	if rup.Key.StringID() != "example|1" {
 		t.Errorf(`rup.Key.StringID(): %v, want "example|1"`, rup.Key.StringID())
+	}
+	if rup.UserID != u.Key.StringID() {
+		t.Errorf(`rup.UserID: %v, want %v`, rup.UserID, u.Key.StringID())
 	}
 
 	// Confirm User.
@@ -280,6 +286,23 @@ func Test_createAndLogin(t *testing.T) {
 	u, err = createAndLogin(w, r, up)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
+	}
+
+	// Confirm UserProfile.
+
+	rup = new(user_profile.UserProfile)
+	err = user_profile.Get(c, "anotherexample|2", rup)
+	if err != nil {
+		t.Errorf(`err: %v, want nil`, err)
+	}
+	if rup.ID != "2" {
+		t.Errorf(`rup.ID: %v, want "2"`, rup.ID)
+	}
+	if rup.Key.StringID() != "anotherexample|2" {
+		t.Errorf(`rup.Key.StringID(): %v, want "anotherexample|2"`, rup.Key.StringID())
+	}
+	if rup.UserID != u.Key.StringID() {
+		t.Errorf(`rup.UserID: %v, want %v`, rup.UserID, u.Key.StringID())
 	}
 
 	// Confirm Logged in User hasn't changed.
