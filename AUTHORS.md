@@ -13,5 +13,5 @@ explanation.*
 
 * * *
 
-Kyle Finley <kylefinley@gmail.com>
+Kyle Finley <finley@scotchmedia.com>
 

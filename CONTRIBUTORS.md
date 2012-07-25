@@ -17,7 +17,7 @@ because the organization holds the copyright.*
 
 ### Initial author(s)
 
-Kyle Finley <kylefinley@gmail.com>
+Kyle Finley <finley@scotchmedia.com>
 
 ### Maintainer
 
