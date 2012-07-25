@@ -15,7 +15,7 @@ import (
 	"code.google.com/p/gorilla/rpc/json"
 	"errors"
 	"github.com/scotch/hal/api"
-	"github.com/scotch/hal/types"
+	"github.com/scotch/hal/person"
 	"github.com/scotch/hal/user"
 	"net/http"
 )
@@ -38,7 +38,7 @@ type ErrorReply struct {
 }
 
 type Person struct {
-	Person *types.Person
+	Person *person.Person
 	Error  *api.Error
 }
 
@@ -47,7 +47,6 @@ type UserService struct{}
 func (us *UserService) Current(w http.ResponseWriter, r *http.Request,
 	args *Empty, reply *Person) error {
 
-	c := appengine.NewContext(r)
 	u, err := user.Current(r)
 	if err != nil {
 		reply.Error = api.ConvertError(err)

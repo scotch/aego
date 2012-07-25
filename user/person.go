@@ -11,14 +11,14 @@ import (
 	dserrors "github.com/scotch/hal/ds/errors"
 	"github.com/scotch/hal/email"
 	"github.com/scotch/hal/password"
-	"github.com/scotch/hal/types"
+	"github.com/scotch/hal/person"
 )
 
 var (
 	ErrEmailInUse = errors.New("user: email in use")
 )
 
-func validatePerson(p *types.Person) (err error) {
+func validatePerson(p *person.Person) (err error) {
 	// Ensure that the email is an actually email.
 	if err = email.Validate(p.Email); err != nil {
 		return
@@ -32,7 +32,7 @@ func validatePerson(p *types.Person) (err error) {
 	return
 }
 
-func CreateFromPerson(c appengine.Context, p *types.Person) (u *User, err error) {
+func CreateFromPerson(c appengine.Context, p *person.Person) (u *User, err error) {
 
 	if err = validatePerson(p); err != nil {
 		return
@@ -68,7 +68,7 @@ func CreateFromPerson(c appengine.Context, p *types.Person) (u *User, err error)
 	return u, err
 }
 
-func UpdateFromPerson(c appengine.Context, p *types.Person) (u *User, err error) {
+func UpdateFromPerson(c appengine.Context, p *person.Person) (u *User, err error) {
 
 	if err = validatePerson(p); err != nil {
 		return

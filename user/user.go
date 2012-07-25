@@ -9,7 +9,7 @@ import (
 	"appengine/datastore"
 	"encoding/json"
 	"github.com/scotch/hal/ds"
-	"github.com/scotch/hal/types"
+	"github.com/scotch/hal/person"
 	"time"
 )
 
@@ -36,7 +36,7 @@ type User struct {
 	// Updated is a time.Time of when the User was last updated.
 	Updated time.Time
 	// Person is an Object representing personal information about the user.
-	Person *types.Person `datastore:"-"`
+	Person *person.Person `datastore:"-"`
 	// PersonJSON is the Person object converted to JSON, for storage purposes.
 	PersonJSON []byte `datastore:"Person"`
 }
@@ -44,7 +44,7 @@ type User struct {
 // New creates a new user and set the Created to now
 func New() *User {
 	return &User{
-		Person:  new(types.Person),
+		Person:  new(person.Person),
 		Created: time.Now(),
 		Updated: time.Now(),
 	}
@@ -52,7 +52,7 @@ func New() *User {
 
 func (u *User) Decode() error {
 	if u.PersonJSON != nil {
-		var p *types.Person
+		var p *person.Person
 		err := json.Unmarshal(u.PersonJSON, &p)
 		u.Person = p
 		return err
@@ -65,7 +65,7 @@ func (u *User) Encode() error {
 
 	// Sanity check, maybe we should raise an error instead.
 	if u.Person == nil {
-		u.Person = new(types.Person)
+		u.Person = new(person.Person)
 	}
 	u.Person.ID = u.Key.StringID()
 	u.Person.Roles = u.Roles
@@ -73,12 +73,12 @@ func (u *User) Encode() error {
 	// Convert time to unix miliseconds for javascript
 	u.Person.Created = u.Created.UnixNano() / 1000000
 	u.Person.Updated = u.Updated.UnixNano() / 1000000
-	// We don't want to return the password hash. So, we simply return a bool
-	// indicating that the user has set their password.
+	// We don't want to return the password hash. So, we simply return a bool indicating that
+	// the user has set there password.
 	if len(u.Password) != 0 {
-		u.Person.Password = &types.PersonPassword{IsSet: true}
+		u.Person.Password = &person.PersonPassword{IsSet: true}
 	} else {
-		u.Person.Password = &types.PersonPassword{IsSet: false}
+		u.Person.Password = &person.PersonPassword{IsSet: false}
 	}
 	// Convert to JSON
 	j, err := json.Marshal(u.Person)

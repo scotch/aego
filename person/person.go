@@ -7,12 +7,12 @@
 // license that can be found in the LICENSE file.
 
 /*
-hal/types provides structs representing various things. The objective of
+hal/person provides structs representing various things. The objective of
 this package is to standardize the discription of things that are commonly
 used in web applications,
 */
 
-package types
+package person
 
 import ()
 

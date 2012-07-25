@@ -13,7 +13,7 @@ import (
 	"code.google.com/p/gorilla/schema"
 	"errors"
 	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/types"
+	"github.com/scotch/hal/person"
 	"github.com/scotch/hal/user_profile"
 	"net/http"
 	"strings"
@@ -102,7 +102,7 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
 		up.Auth = passHash
 		up.ID = email
 		// Decode the form data and add the resulting Person type to the UserProfile.
-		per := &types.Person{}
+		per := &person.Person{}
 		decoder := schema.NewDecoder()
 		decoder.Decode(per, r.Form)
 		up.SetPerson(per)

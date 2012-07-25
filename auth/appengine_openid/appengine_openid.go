@@ -7,7 +7,7 @@ package appengine_openid
 import (
 	aeuser "appengine/user"
 	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/types"
+	"github.com/scotch/hal/person"
 	"github.com/scotch/hal/user_profile"
 	"net/http"
 )
@@ -56,9 +56,9 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
 		up.ID = u.ID
 	}
 
-	per := new(types.Person)
-	per.Emails = []*types.PersonEmails{
-		&types.PersonEmails{true, "home", u.Email},
+	per := new(person.Person)
+	per.Emails = []*person.PersonEmails{
+		&person.PersonEmails{true, "home", u.Email},
 	}
 	per.URL = u.FederatedIdentity
 

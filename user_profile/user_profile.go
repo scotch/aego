@@ -13,7 +13,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/scotch/hal/ds"
-	"github.com/scotch/hal/types"
+	"github.com/scotch/hal/person"
 	"strings"
 	"time"
 )
@@ -40,7 +40,7 @@ type UserProfile struct {
 	// Auth maybe used by the provodier to store any information that it
 	// may need.
 	Auth []byte
-	// PersonJSON is the JSON encoded representation of a aego/types.Person
+	// PersonJSON is the JSON encoded representation of a aego/person.Person
 	PersonJSON []byte
 	// PersonRawJSON is the JSON encoded representation of the raw
 	// response returned from a provider representing the User's Profile.
@@ -97,14 +97,14 @@ func (u *UserProfile) Put(c appengine.Context) error {
 	return err
 }
 
-func (u *UserProfile) SetPerson(p *types.Person) error {
+func (u *UserProfile) SetPerson(p *person.Person) error {
 	b, err := json.Marshal(p)
 	u.PersonJSON = b
 	return err
 }
 
-func (u *UserProfile) Person() (*types.Person, error) {
-	p := new(types.Person)
+func (u *UserProfile) Person() (*person.Person, error) {
+	p := new(person.Person)
 	err := json.Unmarshal(u.PersonJSON, p)
 	return p, err
 }

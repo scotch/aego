@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/password"
-	"github.com/scotch/hal/types"
+	"github.com/scotch/hal/person"
 	"testing"
 )
 
@@ -21,13 +21,13 @@ func TestCreateFromPerson(t *testing.T) {
 
 	// Save it.
 
-	p := &types.Person{
-		Name: &types.PersonName{
+	p := &person.Person{
+		Name: &person.PersonName{
 			GivenName:  "Kyle",
 			FamilyName: "Finley",
 		},
 		Email: "test@examle.org",
-		Password: &types.PersonPassword{
+		Password: &person.PersonPassword{
 			New: "secret1",
 		},
 	}

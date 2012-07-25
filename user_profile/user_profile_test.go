@@ -8,7 +8,7 @@ import (
 	"appengine/datastore"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/ds"
-	"github.com/scotch/hal/types"
+	"github.com/scotch/hal/person"
 	"testing"
 )
 
@@ -70,8 +70,8 @@ func TestSetPerson(t *testing.T) {
 
 	// Encode it.
 
-	p := &types.Person{
-		Name: &types.PersonName{
+	p := &person.Person{
+		Name: &person.PersonName{
 			GivenName:  "Barack",
 			FamilyName: "Obama",
 		},
