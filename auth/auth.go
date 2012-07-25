@@ -117,7 +117,7 @@ func createAndLogin(w http.ResponseWriter, r *http.Request,
 		// Get the user
 		if u, err = user.Get(c, id); err != nil {
 			// if user is not found we have some type of syncing problem.
-			c.Criticalf(`auth: userID: %v was saved to session/UserProfile, but was not found in the datastore`, id)
+			c.Criticalf(`auth: userID: %v was saved to UserProfile / Session, but was not found in the datastore`, id)
 			return
 		}
 	} else {

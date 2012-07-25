@@ -45,7 +45,7 @@ func CurrentUserHasRole(w http.ResponseWriter, r *http.Request, role string) boo
 	s, err := session.Store.Get(r, "user|roles")
 	if err != nil {
 		c := appengine.NewContext(r)
-		c.Errorf("user: There was an error retrieving the session Error: %v", err)
+		c.Criticalf("user: There was an error retrieving the session Error: %v", err)
 		return false
 	}
 	if s.Values[role] == true {
@@ -72,7 +72,7 @@ func CurrentUserSetRole(w http.ResponseWriter, r *http.Request, role string,
 	s, err := session.Store.Get(r, "user")
 	if err != nil {
 		c := appengine.NewContext(r)
-		c.Errorf("user: There was an error retrieving the session Error: %v", err)
+		c.Criticalf("user: There was an error retrieving the session Error: %v", err)
 		return
 	}
 	// If the user is already an admin then there's no need to

@@ -33,7 +33,7 @@ func CurrentUserSetID(w http.ResponseWriter, r *http.Request, userId string) err
 	s, err := session.Store.Get(r, "user")
 	if err != nil {
 		c := appengine.NewContext(r)
-		c.Errorf("user: There was an error retrieving the session Error: %v", err)
+		c.Criticalf("user: There was an error retrieving the session Error: %v", err)
 		return err
 	}
 	s.Values["userid"] = userId
