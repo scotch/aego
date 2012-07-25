@@ -47,7 +47,9 @@ type UserService struct{}
 func (us *UserService) Current(w http.ResponseWriter, r *http.Request,
 	args *Empty, reply *Person) error {
 
-	if u, err := user.Current(r); err != nil {
+	c := appengine.NewContext(r)
+	u, err := user.Current(r)
+	if err != nil {
 		reply.Error = api.ConvertError(err)
 		return nil
 	}

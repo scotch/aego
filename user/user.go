@@ -61,7 +61,6 @@ func (u *User) Decode() error {
 }
 
 func (u *User) Encode() error {
-
 	// Update Person
 
 	// Sanity check, maybe we should raise an error instead.
@@ -69,18 +68,19 @@ func (u *User) Encode() error {
 		u.Person = new(types.Person)
 	}
 	u.Person.ID = u.Key.StringID()
+	u.Person.Roles = u.Roles
 	// TODO(kylefinley) consider alternatives to returning miliseconds.
 	// Convert time to unix miliseconds for javascript
 	u.Person.Created = u.Created.UnixNano() / 1000000
 	u.Person.Updated = u.Updated.UnixNano() / 1000000
-	if l := len(u.Password); l != 0 {
+	// We don't want to return the password hash. So, we simply return a bool indicating that
+	// the user has set there password.
+	if len(u.Password) != 0 {
 		u.Person.Password = &types.PersonPassword{IsSet: true}
 	} else {
 		u.Person.Password = &types.PersonPassword{IsSet: false}
 	}
-
 	// Convert to JSON
-
 	j, err := json.Marshal(u.Person)
 	u.PersonJSON = j
 	return err

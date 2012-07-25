@@ -103,6 +103,9 @@ type Person struct {
 	// - "in_civil_union" - Person is in a civil union.
 	RelationshipStatus string `json:"relationshipStatus,omitempty"`
 
+	// Roles: a list of strings indicating the roles the user has
+	Roles []string `json:"roles,omitempty"`
+
 	// Tagline: The brief description (tagline) of this person.
 	Tagline string `json:"tagline,omitempty"`
 
@@ -225,5 +228,5 @@ type PersonPassword struct {
 	Current string `json:"current,omitempty"`
 
 	// IsSet: Indictor that the User has created a password.
-	IsSet bool `json:"isSet,omitempty"`
+	IsSet bool `json:"isSet"`
 }
