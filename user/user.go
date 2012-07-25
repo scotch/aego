@@ -73,8 +73,8 @@ func (u *User) Encode() error {
 	// Convert time to unix miliseconds for javascript
 	u.Person.Created = u.Created.UnixNano() / 1000000
 	u.Person.Updated = u.Updated.UnixNano() / 1000000
-	// We don't want to return the password hash. So, we simply return a bool indicating that
-	// the user has set there password.
+	// We don't want to return the password hash. So, we simply return a bool
+	// indicating that the user has set their password.
 	if len(u.Password) != 0 {
 		u.Person.Password = &types.PersonPassword{IsSet: true}
 	} else {
