@@ -83,9 +83,12 @@ func breakURL(url string) (name string) {
 	return
 }
 
-// createAndLogin saves the UserProfile to the datastore. And appends
-// the Key.StringID() to the current User's AuthIDs. If a User has not
-// yet been created, it creates one.
+// createAndLogin does the following:
+//
+//  - Saves the UserProfile to the datastore
+//  - Creates a User or appends the AuthID to the Requesting user's account
+//  - Logs in the User
+//  - Adds the admin role to the User if they are an GAE Admin.
 func createAndLogin(w http.ResponseWriter, r *http.Request,
 	up *user_profile.UserProfile) (u *user.User, err error) {
 
