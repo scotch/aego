@@ -91,6 +91,9 @@ type Person struct {
 	// Password: A Password object used for password changes.
 	Password *PersonPassword `json:"password,omitempty"`
 
+	// Provider: The source of the Person Profile
+	Provider *PersonProvider `json:"provider,omitempty"`
+
 	// RelationshipStatus: The person's relationship status. Possible values are:  
 	// - "single" - Person is single. 
 	// - "in_a_relationship" - Person is in a relationship. 
@@ -116,6 +119,12 @@ type Person struct {
 	Urls []*PersonUrls `json:"urls,omitempty"`
 }
 
+func New() *Person {
+	return &Person{}
+}
+
+func (p *Person) Validate() {}
+
 type PersonEmails struct {
 	// Primary: If "true", indicates this email address is the person's
 	// primary one.
@@ -132,10 +141,10 @@ type PersonEmails struct {
 }
 
 type PersonImage struct {
-	// Url: The URL of the person's profile photo. To re-size the image and
+	// URL: The URL of the person's profile photo. To re-size the image and
 	// crop it to a square, append the query string ?sz=x, where x is the
 	// dimension in pixels of each side.
-	Url string `json:"url,omitempty"`
+	URL string `json:"url,omitempty"`
 }
 
 type PersonName struct {
