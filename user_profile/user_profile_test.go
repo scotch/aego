@@ -38,6 +38,13 @@ func TestGet(t *testing.T) {
 	u := New()
 	u.ID = "12345"
 	u.Provider = "Google"
+	u.ProviderURL = "http://plus.google.com"
+	u.Person = &person.Person{
+		Name: &person.PersonName{
+			GivenName:  "Barack",
+			FamilyName: "Obama",
+		},
+	}
 	key := NewKey(c, "google", "12345")
 	u.Key = key
 	err := u.Put(c)
@@ -64,35 +71,30 @@ func TestGet(t *testing.T) {
 	if u2.Key.StringID() != "google|12345" {
 		t.Errorf(`uKey.StringID(): %v, want "google|12345"`, u2.Key.StringID())
 	}
-}
-
-func TestSetPerson(t *testing.T) {
-
-	// Encode it.
-
-	p := &person.Person{
-		Name: &person.PersonName{
-			GivenName:  "Barack",
-			FamilyName: "Obama",
-		},
+	if x := u2.ProviderURL; x != "http://plus.google.com" {
+		t.Errorf(`u2.ProviderURL: %v, want %s`, x, "http://plus.google.com")
 	}
-	u := New()
-	err := u.SetPerson(p)
-	if err != nil {
-		t.Errorf(`err: %v, want nil`, err)
+	if x := u2.Person.ID; x != "12345" {
+		t.Errorf(`u2.Person.ID: %v, want %s`, x, "12345")
 	}
-
-	// Confirm.
-
-	p, err = u.Person()
-
-	if err != nil {
-		t.Errorf(`err: %v, want: %v`, err, nil)
+	if x := u2.Person.Name.GivenName; x != "Barack" {
+		t.Errorf(`u2.Person.Name.GivenName: %v, want %s`, x, "Barack")
 	}
-	if x := p.Name.GivenName; x != "Barack" {
-		t.Errorf(`p.Name.GivenName: %q, want %v`, x, "Barack")
+	if x := u2.Person.Provider.Name; x != "Google" {
+		t.Errorf(`u2.Person.Provider.Name: %v, want %s`, x, "Google")
 	}
-	if x := p.Name.FamilyName; x != "Obama" {
-		t.Errorf(`p.Name.FamilyName: %q, want %v`, x, "Obama")
+	if x := u2.Person.Provider.URL; x != "http://plus.google.com" {
+		t.Errorf(`u2.Person.Provider.URL: %v, want %s`, x, "http://plus.google.com")
+	}
+	if x := u2.Person.Kind; x != "google#person" {
+		t.Errorf(`u2.Person.Kind: %v, want %s`, x, "google#person")
+	}
+	if u2.Person.Created != u2.Created.UnixNano()/1000000 {
+		t.Errorf(`u2.Created: %v, want %v`, u2.Person.Created,
+			u2.Created.UnixNano()/1000000)
+	}
+	if u2.Person.Updated != u2.Updated.UnixNano()/1000000 {
+		t.Errorf(`u2.Updated: %v, want %v`, u2.Person.Updated,
+			u2.Updated.UnixNano()/1000000)
 	}
 }

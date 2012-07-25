@@ -65,11 +65,8 @@ func TestAuthenticate(t *testing.T) {
 		t.Errorf(`err: %v, want: %v`, err, nil)
 	}
 
-	per, err := up.Person()
+	per := up.Person
 
-	if err != nil {
-		t.Errorf(`err: %v, want: %v`, err, nil)
-	}
 	if x := per.Name.GivenName; x != "Barack" {
 		t.Errorf(`per.Name.GivenName: %q, want %v`, x, "Barack")
 	}

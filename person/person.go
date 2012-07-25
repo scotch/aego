@@ -204,6 +204,14 @@ type PersonPlacesLived struct {
 	Value string `json:"value,omitempty"`
 }
 
+type PersonProvider struct {
+	// Name: the name of the provider
+	Name string `json:"name,omitempty"`
+
+	// URL: The url of the provider
+	URL string `json:"url,omitempty"`
+}
+
 type PersonUrls struct {
 	// Primary: If "true", this URL is the person's primary URL.
 	Primary bool `json:"primary,omitempty"`

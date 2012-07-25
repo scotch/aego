@@ -61,8 +61,7 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
 		&person.PersonEmails{true, "home", u.Email},
 	}
 	per.URL = u.FederatedIdentity
-
-	up.SetPerson(per)
+	up.Person = per
 
 	return "", nil
 }

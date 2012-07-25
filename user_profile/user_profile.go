@@ -40,8 +40,10 @@ type UserProfile struct {
 	// Auth maybe used by the provodier to store any information that it
 	// may need.
 	Auth []byte
-	// PersonJSON is the JSON encoded representation of a aego/person.Person
-	PersonJSON []byte
+	// Person is an Object representing personal information about the user.
+	Person *person.Person `datastore:"-"`
+	// PersonJSON is the Person object converted to JSON, for storage purposes.
+	PersonJSON []byte `datastore:"Person"`
 	// PersonRawJSON is the JSON encoded representation of the raw
 	// response returned from a provider representing the User's Profile.
 	PersonRawJSON []byte
@@ -54,6 +56,7 @@ type UserProfile struct {
 // New creates a new UserProfile and set the Created to now
 func New() *UserProfile {
 	return &UserProfile{
+		Person:  new(person.Person),
 		Created: time.Now(),
 		Updated: time.Now(),
 	}
@@ -74,37 +77,65 @@ func NewKey(c appengine.Context, provider, id string) *datastore.Key {
 	return datastore.NewKey(c, "UserProfile", authID, 0, nil)
 }
 
-// Get is a convience method for retrieveing an entity foom the store.
+// SetKey creates and embeds a ds.Key to the entity.
+func (u *UserProfile) SetKey(c appengine.Context) (err error) {
+	u.Key = NewKey(c, u.Provider, u.ID)
+	return
+}
+
+// Encode is called prior to save. Any fields that need to be updated
+// prior to save are updated here.
+func (u *UserProfile) Encode() error {
+	// Update Person
+
+	// Sanity check, TODO maybe we should raise an error instead.
+	if u.Person == nil {
+		u.Person = new(person.Person)
+	}
+	u.Person.Provider = &person.PersonProvider{
+		Name: u.Provider,
+		URL:  u.ProviderURL,
+	}
+	u.Person.Kind = fmt.Sprintf("%s#person", strings.ToLower(u.Provider))
+	u.Person.ID = u.ID
+	// TODO(kylefinley) consider alternatives to returning miliseconds.
+	// Convert time to unix miliseconds for javascript
+	u.Person.Created = u.Created.UnixNano() / 1000000
+	u.Person.Updated = u.Updated.UnixNano() / 1000000
+	// Convert to JSON
+	j, err := json.Marshal(u.Person)
+	u.PersonJSON = j
+	return err
+}
+
+// Decode is called after the entity has been retrieved from the the ds.
+func (u *UserProfile) Decode() error {
+	if u.PersonJSON != nil {
+		var p *person.Person
+		err := json.Unmarshal(u.PersonJSON, &p)
+		u.Person = p
+		return err
+	}
+	return nil
+}
+
+// Get is a convience method for retrieveing an entity from the ds.
 func Get(c appengine.Context, id string, up *UserProfile) (err error) {
 	key := datastore.NewKey(c, "UserProfile", id, 0, nil)
 	err = ds.Get(c, key, up)
 	up.Key = key
+	up.Decode()
 	return
-}
-
-func (u *UserProfile) SetKey(c appengine.Context) {
-	u.Key = NewKey(c, u.Provider, u.ID)
 }
 
 // Put is a convience method to save the UserProfile to the datastore and
 // updated the Updated property to time.Now().
 func (u *UserProfile) Put(c appengine.Context) error {
-	u.Updated = time.Now()
-	u.SetKey(c)
 	// TODO add error handeling for empty Provider and ID
+	u.SetKey(c)
+	u.Updated = time.Now()
+	u.Encode()
 	key, err := ds.Put(c, u.Key, u)
 	u.Key = key
 	return err
-}
-
-func (u *UserProfile) SetPerson(p *person.Person) error {
-	b, err := json.Marshal(p)
-	u.PersonJSON = b
-	return err
-}
-
-func (u *UserProfile) Person() (*person.Person, error) {
-	p := new(person.Person)
-	err := json.Unmarshal(u.PersonJSON, p)
-	return p, err
 }
