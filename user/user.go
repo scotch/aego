@@ -51,7 +51,7 @@ func New() *User {
 }
 
 // SetKey creates and embeds a ds.Key into the entity.
-func (u *User) SetKey(c appengine.Context) {
+func (u *User) SetKey(c appengine.Context) (err error) {
 	// If we are saving for the first time lets get an id so that we
 	// can save the id to the json data before saving the entity. This
 	// prevents us from having to save twice.
@@ -62,6 +62,7 @@ func (u *User) SetKey(c appengine.Context) {
 		}
 		u.Key = datastore.NewKey(c, "User", id, 0, nil)
 	}
+	return
 }
 
 // Encode is called prior to save. Any fields that need to be updated
@@ -69,7 +70,7 @@ func (u *User) SetKey(c appengine.Context) {
 func (u *User) Encode() error {
 	// Update Person
 
-	// Sanity check, maybe we should raise an error instead.
+	// Sanity check, TODO maybe we should raise an error instead.
 	if u.Person == nil {
 		u.Person = new(person.Person)
 	}
@@ -117,10 +118,12 @@ func Get(c appengine.Context, id string) (u *User, err error) {
 // updated the Updated property to time.Now(). This method should
 // always be usdd when saving a user, fore it does some necessary
 // preprocessing.
-func (u *User) Put(c appengine.Context) error {
-	u.SetKey()
-	u.Encode()
+func (u *User) Put(c appengine.Context) (err error) {
+	if err = u.SetKey(c); err != nil {
+		return
+	}
 	u.Updated = time.Now()
+	u.Encode()
 	key, err := ds.Put(c, u.Key, u)
 	u.Key = key
 	return err
