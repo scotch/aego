@@ -59,8 +59,8 @@ func CreateFromPerson(c appengine.Context, p *person.Person) (u *User, err error
 		if err = u.Put(c); err != nil {
 			return err
 		}
-		// Update the Email with UserId.
-		e.UserId = u.Key.StringID()
+		// Update the Email with UserID.
+		e.UserID = u.Key.StringID()
 		return e.Put(c)
 		// XG transation
 	}, &datastore.TransactionOptions{XG: true})

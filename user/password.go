@@ -23,12 +23,12 @@ func (u *User) setPassword(password string) (err error) {
 func LoginByEmailAndPassword(w http.ResponseWriter, r *http.Request, emailAddress, password string) (u *User, err error) {
 
 	c := appengine.NewContext(r)
-	// Get UserId
+	// Get UserID
 	e, err := email.Get(c, emailAddress)
 	if err != nil {
 		return
 	}
-	u, err = Get(c, e.UserId)
+	u, err = Get(c, e.UserID)
 	if err != nil {
 		return
 	}
@@ -49,14 +49,14 @@ func ChangePassword(c appengine.Context, emailAddress, currentPassword,
 	if err != nil {
 		return
 	}
-	// Get the UserId.
+	// Get the UserID.
 	// TODO(kylefinley) add status check confirm that the email has been
 	// confirmed.
 	e, err := email.Get(c, emailAddress)
 	if err != nil {
 		return
 	}
-	u, err := Get(c, e.UserId)
+	u, err := Get(c, e.UserID)
 	if err != nil {
 		return
 	}
