@@ -82,7 +82,7 @@ func TestAuthenticate(t *testing.T) {
 		t.Errorf(`err: %v, want: %v`, err, nil)
 	}
 
-	per, err := up.Person()
+	per := up.Person
 
 	if err != nil {
 		t.Errorf(`err: %v, want: %v`, err, nil)
@@ -122,7 +122,7 @@ func TestAuthenticate(t *testing.T) {
 		t.Errorf(`err: %v, want: %v`, err, nil)
 	}
 
-	per, err = up.Person()
+	per = up.Person
 
 	if err != nil {
 		t.Errorf(`err: %v, want: %v`, err, nil)

@@ -105,7 +105,7 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
 		per := &person.Person{}
 		decoder := schema.NewDecoder()
 		decoder.Decode(per, r.Form)
-		up.SetPerson(per)
+		up.Person = per
 
 	} else {
 		// Verify the password.
