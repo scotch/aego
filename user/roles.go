@@ -35,6 +35,7 @@ func (u *User) HasRole(role string) bool {
 }
 
 // CurrentUserHasRole checks for the presents of a role listed under the current user.
+// The role is retrieved from the users session to save on lookups.
 func CurrentUserHasRole(w http.ResponseWriter, r *http.Request, role string) bool {
 
 	// Confirm we have a user.
@@ -66,6 +67,8 @@ func CurrentUserHasRole(w http.ResponseWriter, r *http.Request, role string) boo
 	return false
 }
 
+// CurrentUserSetRole adds role to the current user's roles.
+// The role is stored in the users session to save on lookups.
 func CurrentUserSetRole(w http.ResponseWriter, r *http.Request, role string,
 	value bool) (err error) {
 
