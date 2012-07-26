@@ -5,7 +5,7 @@
 // Copyright: 2011 Google Inc. All Rights Reserved.
 // license: Apache Software License, see LICENSE for details.
 
-package user_profile
+package profile
 
 import (
 	"appengine"
@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-type UserProfile struct {
+type Profile struct {
 	// Key is the datastore key. It is not saved back to the datastore
 	// it is just embeded here for convience.
 	Key *datastore.Key `datastore:"-"`
@@ -35,7 +35,7 @@ type UserProfile struct {
 	// originator of the authentication. For example Google plus would
 	// be http://plus.google.com and not http://google.com.
 	ProviderURL string `datastore:",noindex"`
-	// UserID is the string ID of the User that the UserProfile belongs to.
+	// UserID is the string ID of the User that the Profile belongs to.
 	UserID string
 	// Auth maybe used by the provodier to store any information that it
 	// may need.
@@ -47,22 +47,22 @@ type UserProfile struct {
 	// PersonRawJSON is the JSON encoded representation of the raw
 	// response returned from a provider representing the User's Profile.
 	PersonRawJSON []byte
-	// Created is a time.Time representing with the UserProfile was created.
+	// Created is a time.Time representing with the Profile was created.
 	Created time.Time
-	// Created is a time.Time representing with the UserProfile was updated.
+	// Created is a time.Time representing with the Profile was updated.
 	Updated time.Time
 }
 
-// New creates a new UserProfile and set the Created to now
-func New() *UserProfile {
-	return &UserProfile{
+// New creates a new Profile and set the Created to now
+func New() *Profile {
+	return &Profile{
 		Person:  new(person.Person),
 		Created: time.Now(),
 		Updated: time.Now(),
 	}
 }
 
-// GenAuthID generates a unique id for the UserProfile based on a string
+// GenAuthID generates a unique id for the Profile based on a string
 // representing the provider and a unique id provided by the provider.
 // Using this generator is prefered over compiling the key manually to
 // ensure consistency.
@@ -74,18 +74,18 @@ func GenAuthID(provider, id string) string {
 // the provider and a unique id provided by the provider.
 func NewKey(c appengine.Context, provider, id string) *datastore.Key {
 	authID := GenAuthID(provider, id)
-	return datastore.NewKey(c, "UserProfile", authID, 0, nil)
+	return datastore.NewKey(c, "AuthProfile", authID, 0, nil)
 }
 
 // SetKey creates and embeds a ds.Key to the entity.
-func (u *UserProfile) SetKey(c appengine.Context) (err error) {
+func (u *Profile) SetKey(c appengine.Context) (err error) {
 	u.Key = NewKey(c, u.Provider, u.ID)
 	return
 }
 
 // Encode is called prior to save. Any fields that need to be updated
 // prior to save are updated here.
-func (u *UserProfile) Encode() error {
+func (u *Profile) Encode() error {
 	// Update Person
 
 	// Sanity check, TODO maybe we should raise an error instead.
@@ -109,7 +109,7 @@ func (u *UserProfile) Encode() error {
 }
 
 // Decode is called after the entity has been retrieved from the the ds.
-func (u *UserProfile) Decode() error {
+func (u *Profile) Decode() error {
 	if u.PersonJSON != nil {
 		var p *person.Person
 		err := json.Unmarshal(u.PersonJSON, &p)
@@ -120,17 +120,17 @@ func (u *UserProfile) Decode() error {
 }
 
 // Get is a convience method for retrieveing an entity from the ds.
-func Get(c appengine.Context, id string, up *UserProfile) (err error) {
-	key := datastore.NewKey(c, "UserProfile", id, 0, nil)
+func Get(c appengine.Context, id string, up *Profile) (err error) {
+	key := datastore.NewKey(c, "AuthProfile", id, 0, nil)
 	err = ds.Get(c, key, up)
 	up.Key = key
 	up.Decode()
 	return
 }
 
-// Put is a convience method to save the UserProfile to the datastore and
+// Put is a convience method to save the Profile to the datastore and
 // updated the Updated property to time.Now().
-func (u *UserProfile) Put(c appengine.Context) error {
+func (u *Profile) Put(c appengine.Context) error {
 	// TODO add error handeling for empty Provider and ID
 	u.SetKey(c)
 	u.Updated = time.Now()

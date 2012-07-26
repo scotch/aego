@@ -8,8 +8,8 @@ import (
 	"appengine/urlfetch"
 	"code.google.com/p/goauth2/oauth"
 	"fmt"
+	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/user_profile"
 	"net/http"
 	"net/url"
 	"strings"
@@ -69,7 +69,7 @@ func (p *Provider) callback(r *http.Request) error {
 }
 
 func (p *Provider) Authenticate(r *http.Request) (
-	redirectURL string, up *user_profile.UserProfile, err error) {
+	redirectURL string, up *profile.Profile, err error) {
 
 	//c := context.NewContext(r)
 	return "", up, nil

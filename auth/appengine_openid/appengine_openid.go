@@ -6,9 +6,9 @@ package appengine_openid
 
 import (
 	aeuser "appengine/user"
+	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/person"
-	"github.com/scotch/hal/user_profile"
 	"net/http"
 )
 
@@ -28,7 +28,7 @@ func New() *Provider {
 // If the Authenticate method can not authenticate the User based on the
 // request, an error or a redirect URL wll be return.
 func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *user_profile.UserProfile) (url string, err error) {
+	up *profile.Profile) (url string, err error) {
 
 	c := context.NewContext(r)
 

@@ -10,8 +10,8 @@ package dev
 
 import (
 	"code.google.com/p/gorilla/schema"
+	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/person"
-	"github.com/scotch/hal/user_profile"
 	"net/http"
 )
 
@@ -24,11 +24,11 @@ func New() *Provider {
 	return &Provider{"Dev", "http://localhost:8080"}
 }
 
-// Authenticate process the request and returns a populated UserProfile.
+// Authenticate process the request and returns a populated Profile.
 // If the Authenticate method can not authenticate the User based on the
 // request, an error or a redirect URL wll be return.
 func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *user_profile.UserProfile) (url string, err error) {
+	up *profile.Profile) (url string, err error) {
 
 	up.Provider = p.Name
 	up.ProviderURL = p.URL
@@ -39,7 +39,7 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
 		up.ID = "default"
 	}
 
-	// Decode the form data and add the resulting Person type to the UserProfile.
+	// Decode the form data and add the resulting Person type to the Profile.
 	per := &person.Person{}
 	decoder := schema.NewDecoder()
 	decoder.Decode(per, r.Form)

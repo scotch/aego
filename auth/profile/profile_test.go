@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package user_profile
+package profile
 
 import (
 	"appengine/datastore"
@@ -20,7 +20,7 @@ func TestNewKey(t *testing.T) {
 	c := context.NewContext(nil)
 	defer tearDown()
 
-	k1 := datastore.NewKey(c, "UserProfile", "google|12345", 0, nil)
+	k1 := datastore.NewKey(c, "AuthProfile", "google|12345", 0, nil)
 	k2 := NewKey(c, "Google", "12345")
 	if k1.String() != k2.String() {
 		t.Errorf("k2: %q, want %q.", k2, k1)
@@ -54,9 +54,9 @@ func TestGet(t *testing.T) {
 
 	// Get it.
 
-	u2 := &UserProfile{}
+	u2 := &Profile{}
 	id := "google|12345"
-	key = datastore.NewKey(c, "UserProfile", id, 0, nil)
+	key = datastore.NewKey(c, "AuthProfile", id, 0, nil)
 	err = ds.Get(c, key, u2)
 	if err != nil {
 		t.Errorf(`err: %q, want nil`, err)

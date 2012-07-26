@@ -12,9 +12,9 @@ import (
 	"code.google.com/p/go.crypto/bcrypt"
 	"code.google.com/p/gorilla/schema"
 	"errors"
+	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/person"
-	"github.com/scotch/hal/user_profile"
 	"net/http"
 	"strings"
 )
@@ -67,11 +67,11 @@ func validatePass(pass string) error {
 	return nil
 }
 
-// Authenticate process the request and returns a populated UserProfile.
+// Authenticate process the request and returns a populated Profile.
 // If the Authenticate method can not authenticate the User based on the
 // request, an error or a redirect URL wll be return.
 func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *user_profile.UserProfile) (url string, err error) {
+	up *profile.Profile) (url string, err error) {
 
 	c := context.NewContext(r)
 	p.URL = r.URL.Host
@@ -90,8 +90,8 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
 		return "", err
 	}
 
-	authID := user_profile.GenAuthID("Password", email)
-	err = user_profile.Get(c, authID, up)
+	authID := profile.GenAuthID("Password", email)
+	err = profile.Get(c, authID, up)
 
 	passByte := []byte(pass)
 	if err != nil {
@@ -101,7 +101,7 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
 		}
 		up.Auth = passHash
 		up.ID = email
-		// Decode the form data and add the resulting Person type to the UserProfile.
+		// Decode the form data and add the resulting Person type to the Profile.
 		per := &person.Person{}
 		decoder := schema.NewDecoder()
 		decoder.Decode(per, r.Form)

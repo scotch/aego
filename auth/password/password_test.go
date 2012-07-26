@@ -6,8 +6,8 @@ package password
 
 import (
 	"github.com/scotch/hal/auth"
+	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/user_profile"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -22,7 +22,7 @@ func tearDown() {
 }
 
 func TestValidatePass(t *testing.T) {
-	//ds.Register("UserProfile", true, false, false)
+	//ds.Register("AuthProfile", true, false, false)
 }
 
 func TestValidateEmail(t *testing.T) {
@@ -70,7 +70,7 @@ func TestAuthenticate(t *testing.T) {
 
 	// Process.
 
-	up := user_profile.New()
+	up := profile.New()
 	u, err := pro.Authenticate(w, req, up)
 
 	// Check.
@@ -110,7 +110,7 @@ func TestAuthenticate(t *testing.T) {
 
 	// Process.
 
-	up = user_profile.New()
+	up = profile.New()
 	u, err = pro.Authenticate(w, req, up)
 
 	// Check.
@@ -129,7 +129,7 @@ func TestAuthenticate(t *testing.T) {
 	}
 	if x := per.Name.GivenName; x != "Barack" {
 		t.Errorf(`per.Name.GivenName: %q, want %v. When confirming an
-    existing account the UserProfile should not be modified.`, x, "Barack")
+    existing account the Profile should not be modified.`, x, "Barack")
 	}
 
 	// Round 3: Existing Profile. In-Correct password.
@@ -145,7 +145,7 @@ func TestAuthenticate(t *testing.T) {
 
 	// Process.
 
-	up = user_profile.New()
+	up = profile.New()
 	u, err = pro.Authenticate(w, req, up)
 
 	// Check.

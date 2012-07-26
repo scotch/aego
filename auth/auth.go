@@ -25,9 +25,9 @@ package auth
 
 import (
 	aeuser "appengine/user"
+	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/user"
-	"github.com/scotch/hal/user_profile"
 	"net/http"
 	"strings"
 )
@@ -51,8 +51,7 @@ var (
 var providers = make(map[string]authenticater)
 
 type authenticater interface {
-	Authenticate(http.ResponseWriter, *http.Request,
-		*user_profile.UserProfile) (string, error)
+	Authenticate(http.ResponseWriter, *http.Request, *profile.Profile) (string, error)
 }
 
 // Register adds an Authenticater for the auth service.
@@ -83,13 +82,13 @@ func breakURL(url string) (name string) {
 
 // createAndLogin does the following:
 //
-//  - Search for an existing user - session -> UserProfile -> email address
-//  - Saves the UserProfile to the datastore
+//  - Search for an existing user - session -> Profile -> email address
+//  - Saves the Profile to the datastore
 //  - Creates a User or appends the AuthID to the Requesting user's account
 //  - Logs in the User
 //  - Adds the admin role to the User if they are an GAE Admin.
 func createAndLogin(w http.ResponseWriter, r *http.Request,
-	up *user_profile.UserProfile) (u *user.User, err error) {
+	up *profile.Profile) (u *user.User, err error) {
 
 	var id string
 	var idUP string
@@ -100,9 +99,9 @@ func createAndLogin(w http.ResponseWriter, r *http.Request,
 	up.SetKey(c)
 	// Check the session for a UserID
 	idSess, _ = user.CurrentUserID(r)
-	// Check for an existing UserProfile
-	up2 := user_profile.New()
-	if err := user_profile.Get(c, up.Key.StringID(), up2); err == nil {
+	// Check for an existing Profile
+	up2 := profile.New()
+	if err := profile.Get(c, up.Key.StringID(), up2); err == nil {
 		idSess = up2.UserID
 	}
 	if idUP != "" || idSess != "" {
@@ -117,7 +116,7 @@ func createAndLogin(w http.ResponseWriter, r *http.Request,
 		// Get the user
 		if u, err = user.Get(c, id); err != nil {
 			// if user is not found we have some type of syncing problem.
-			c.Criticalf(`auth: userID: %v was saved to UserProfile / Session, but was not found in the datastore`, id)
+			c.Criticalf(`auth: userID: %v was saved to Profile / Session, but was not found in the datastore`, id)
 			return
 		}
 	} else {
@@ -147,14 +146,14 @@ func createAndLogin(w http.ResponseWriter, r *http.Request,
 	if saveUser {
 		err = u.Put(c)
 	}
-	// TODO should the UserProfile always be saved?
+	// TODO should the Profile always be saved?
 	up.UserID = u.Key.StringID()
 	err = up.Put(c)
 	return
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	up := user_profile.New()
+	up := profile.New()
 	k := breakURL(r.URL.Path)
 	p := providers[k]
 	url, err := p.Authenticate(w, r, up)
@@ -170,9 +169,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// If we don't have a URL or an error then the user has been authenticated.
-	// Check the UserProfile for an ID and Provider.
+	// Check the Profile for an ID and Provider.
 	if up.ID == "" || up.Provider == "" {
-		panic(`hal/auth: The UserProfile's "ID" or "Provider" is empty.` +
+		panic(`hal/auth: The Profile's "ID" or "Provider" is empty.` +
 			`A Key can not be created.`)
 	}
 	if _, err = createAndLogin(w, r, up); err != nil {

@@ -8,9 +8,9 @@ import (
 	"appengine/datastore"
 	"errors"
 	"github.com/scotch/hal/auth/dev"
+	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/user"
-	"github.com/scotch/hal/user_profile"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -32,7 +32,7 @@ type TestProvider struct {
 }
 
 func (p *TestProvider) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *user_profile.UserProfile) (url string, err error) {
+	up *profile.Profile) (url string, err error) {
 	return "/redirect-to-url", nil
 }
 
@@ -41,7 +41,7 @@ type TPRedirect struct {
 }
 
 func (p *TPRedirect) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *user_profile.UserProfile) (url string, err error) {
+	up *profile.Profile) (url string, err error) {
 	return "/redirect-to-url", nil
 }
 
@@ -50,7 +50,7 @@ type TPError struct {
 }
 
 func (p *TPError) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *user_profile.UserProfile) (url string, err error) {
+	up *profile.Profile) (url string, err error) {
 	err = errors.New("Mock error")
 	return "", err
 }
@@ -60,7 +60,7 @@ type TPComplete struct {
 }
 
 func (p *TPComplete) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *user_profile.UserProfile) (url string, err error) {
+	up *profile.Profile) (url string, err error) {
 
 	up.ID = "1"
 	up.Provider = "Example"
@@ -183,11 +183,11 @@ func Test_createAndLogin(t *testing.T) {
 	defer teardown()
 	c := context.NewContext(nil)
 
-	up := user_profile.New()
+	up := profile.New()
 	r, _ := http.NewRequest("GET", "http://localhost:8080/-/auth/example4", nil)
 	w := httptest.NewRecorder()
 
-	// Round 1: No User | No UserProfile
+	// Round 1: No User | No Profile
 
 	// Confirm.
 
@@ -195,9 +195,9 @@ func Test_createAndLogin(t *testing.T) {
 	if cnt, _ := q.Count(c); cnt != 0 {
 		t.Errorf(`User cnt: %v, want 0`, cnt)
 	}
-	q = datastore.NewQuery("UserProfile")
+	q = datastore.NewQuery("Profile")
 	if cnt, _ := q.Count(c); cnt != 0 {
-		t.Errorf(`UserProfile cnt: %v, want 0`, cnt)
+		t.Errorf(`Profile cnt: %v, want 0`, cnt)
 	}
 	u, err := user.Current(r)
 	if err != user.ErrNoLoggedInUser {
@@ -223,10 +223,10 @@ func Test_createAndLogin(t *testing.T) {
 		t.Errorf(`up.UserID: %v, want %v`, up.UserID, u.Key.StringID())
 	}
 
-	// Confirm UserProfile.
+	// Confirm Profile.
 
-	rup := new(user_profile.UserProfile)
-	err = user_profile.Get(c, "example|1", rup)
+	rup := new(profile.Profile)
+	err = profile.Get(c, "example|1", rup)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -256,9 +256,9 @@ func Test_createAndLogin(t *testing.T) {
 	if cnt, _ := q2.Count(c); cnt != 1 {
 		t.Errorf(`User cnt: %v, want 1`, cnt)
 	}
-	q4 := datastore.NewQuery("UserProfile")
+	q4 := datastore.NewQuery("AuthProfile")
 	if cnt, _ := q4.Count(c); cnt != 1 {
-		t.Errorf(`UserProfile cnt: %v, want 1`, cnt)
+		t.Errorf(`Profile cnt: %v, want 1`, cnt)
 	}
 
 	// Confirm Logged in User.
@@ -276,11 +276,11 @@ func Test_createAndLogin(t *testing.T) {
 		t.Errorf(`u: %v`, u)
 	}
 
-	// Round 2: Logged in User | Second UserProfile
+	// Round 2: Logged in User | Second Profile
 
 	// Create.
 
-	up = user_profile.New()
+	up = profile.New()
 	up.ID = "2"
 	up.Provider = "AnotherExample"
 	u, err = createAndLogin(w, r, up)
@@ -288,10 +288,10 @@ func Test_createAndLogin(t *testing.T) {
 		t.Errorf(`err: %v, want nil`, err)
 	}
 
-	// Confirm UserProfile.
+	// Confirm Profile.
 
-	rup = new(user_profile.UserProfile)
-	err = user_profile.Get(c, "anotherexample|2", rup)
+	rup = new(profile.Profile)
+	err = profile.Get(c, "anotherexample|2", rup)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -332,12 +332,12 @@ func Test_createAndLogin(t *testing.T) {
 	if cnt, _ := q2.Count(c); cnt != 1 {
 		t.Errorf(`User cnt: %v, want 1`, cnt)
 	}
-	q4 = datastore.NewQuery("UserProfile")
+	q4 = datastore.NewQuery("AuthProfile")
 	if cnt, _ := q4.Count(c); cnt != 2 {
-		t.Errorf(`UserProfile cnt: %v, want 1`, cnt)
+		t.Errorf(`Profile cnt: %v, want 1`, cnt)
 	}
 
-	// Round 3: Logged out User | Existing UserProfile
+	// Round 3: Logged out User | Existing Profile
 
 	err = user.Logout(w, r)
 	if err != nil {
@@ -353,7 +353,7 @@ func Test_createAndLogin(t *testing.T) {
 
 	// Login.
 
-	up = user_profile.New()
+	up = profile.New()
 	up.ID = "1"
 	up.Provider = "Example"
 	u, err = createAndLogin(w, r, up)
@@ -367,9 +367,9 @@ func Test_createAndLogin(t *testing.T) {
 	if cnt, _ := q2.Count(c); cnt != 1 {
 		t.Errorf(`User cnt: %v, want 1`, cnt)
 	}
-	q4 = datastore.NewQuery("UserProfile")
+	q4 = datastore.NewQuery("AuthProfile")
 	if cnt, _ := q4.Count(c); cnt != 2 {
-		t.Errorf(`UserProfile cnt: %v, want 1`, cnt)
+		t.Errorf(`Profile cnt: %v, want 1`, cnt)
 	}
 
 	// Confirm Logged in User hasn't changed.

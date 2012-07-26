@@ -129,7 +129,7 @@ func TestAuthenticate(t *testing.T) {
 
 	// Process.
 
-	up := &user_profile.UserProfile{}
+	up := profile.New()
 	url, err := pro.Authenticate(w, req, up)
 
 	// Check.
