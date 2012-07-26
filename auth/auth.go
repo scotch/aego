@@ -83,6 +83,7 @@ func breakURL(url string) (name string) {
 
 // createAndLogin does the following:
 //
+//  - Search for an existing user - session -> UserProfile -> email address
 //  - Saves the UserProfile to the datastore
 //  - Creates a User or appends the AuthID to the Requesting user's account
 //  - Logs in the User
@@ -120,6 +121,7 @@ func createAndLogin(w http.ResponseWriter, r *http.Request,
 			return
 		}
 	} else {
+
 		// New user
 		u = user.New()
 		if err = u.SetKey(c); err != nil {
