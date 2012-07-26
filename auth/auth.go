@@ -24,10 +24,8 @@ Example Usage:
 package auth
 
 import (
-	"appengine/datastore"
 	aeuser "appengine/user"
 	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/ds"
 	"github.com/scotch/hal/user"
 	"github.com/scotch/hal/user_profile"
 	"net/http"
@@ -110,6 +108,7 @@ func createAndLogin(w http.ResponseWriter, r *http.Request,
 		if idUP == idSess {
 			id = idSess
 		} else {
+			// TWO USER ACCOUNTS FOR 1 USEPROFILE
 			// TODO implement some type of user merge here.
 			// for the time being use the logged in User's ID
 			id = idSess
@@ -122,10 +121,10 @@ func createAndLogin(w http.ResponseWriter, r *http.Request,
 		}
 	} else {
 		// New user
-		id, _ = ds.AllocateID(c, "User")
 		u = user.New()
-		u.Key = datastore.NewKey(c, "User", id, 0, nil)
-		//u.AuthIDs = []string{u.Key.StringID()}
+		if err = u.SetKey(c); err != nil {
+			return
+		}
 		saveUser = true
 	}
 	// Add AuthID
