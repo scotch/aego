@@ -32,7 +32,8 @@ func validatePerson(p *person.Person) (err error) {
 	return
 }
 
-func CreateFromPerson(c appengine.Context, p *person.Person) (u *User, err error) {
+// PutByPerson Creates or updates a User by a Person
+func PutByPerson(c appengine.Context, p *person.Person) (u *User, err error) {
 
 	if err = validatePerson(p); err != nil {
 		return
