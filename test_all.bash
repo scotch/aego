@@ -10,6 +10,7 @@ github.com/scotch/hal/ds
 github.com/scotch/hal/ds/appengine/datastore
 github.com/scotch/hal/ds/appengine/memcache
 github.com/scotch/hal/ds/memory
+github.com/scotch/hal/email
 github.com/scotch/hal/user
 "
 
