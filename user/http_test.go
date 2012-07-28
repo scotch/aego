@@ -113,10 +113,10 @@ func TestCurrent(t *testing.T) {
 	//if u2.Person.Email != u2.Email {
 	//t.Errorf(`u2.Email: %v, want %v`, u2.Person.Email, u2.Email)
 	//}
-	if u2.Person.Password.IsSet != false {
-		t.Errorf(`u2.Person.Password.IsSet: %v, want %v`,
-			u2.Person.Password.IsSet, false)
-	}
+	//if u2.Person.Password.IsSet != false {
+	//t.Errorf(`u2.Person.Password.IsSet: %v, want %v`,
+	//u2.Person.Password.IsSet, false)
+	//}
 	// Logout User
 
 	if err = Logout(w, r); err != nil {

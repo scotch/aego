@@ -27,8 +27,6 @@ type User struct {
 	Email string
 	// Emails is a list of additional email addresses. Used in quering.
 	Emails []string
-	// Password is a password hash used to verify the user.
-	Password []byte
 	// Roles is a list of role names that the user belongs to.
 	Roles []string
 	// Person is an Object representing personal information about the user.
@@ -80,13 +78,6 @@ func (u *User) Encode() error {
 	// Convert time to unix miliseconds for javascript
 	u.Person.Created = u.Created.UnixNano() / 1000000
 	u.Person.Updated = u.Updated.UnixNano() / 1000000
-	// We don't want to return the password hash. So, we simply return a bool indicating that
-	// the user has set there password.
-	if len(u.Password) != 0 {
-		u.Person.Password = &person.PersonPassword{IsSet: true}
-	} else {
-		u.Person.Password = &person.PersonPassword{IsSet: false}
-	}
 	// Convert to JSON
 	j, err := json.Marshal(u.Person)
 	u.PersonJSON = j

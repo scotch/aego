@@ -2,116 +2,106 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-/*
-Package hal/auth/password provides a password strategy using bcrypt.
-
-*/
 package password
 
 import (
+	//"appengine"
 	"code.google.com/p/go.crypto/bcrypt"
-	"code.google.com/p/gorilla/schema"
 	"errors"
-	"github.com/scotch/hal/auth/profile"
-	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/person"
-	"net/http"
-	"strings"
+	//"github.com/scotch/hal/email"
 )
 
 const (
-	MIN_PASS_LENGTH = 4
-	MAX_PASS_LENGTH = 31
-	BCRYPT_COST     = 10
+	PASSWORD_LENGTH_MIN = 4
+	PASSWORD_LENGTH_MAX = 31
+	BCRYPT_COST         = 10
 )
 
-//ErrMismatchedPassword is the the custom error for incorrect passwords.
 var (
-	ErrInvalidEmail     = errors.New("auth/password: invalid email address")
-	ErrInvalidPassword  = errors.New("auth/password: invalid password")
 	ErrPasswordMismatch = errors.New("auth/password: passwords do not match")
 	ErrPasswordLength   = errors.New("auth/password: passwords must be between 4 and 31 charaters")
 )
 
-type Provider struct {
-	Name, URL string
+type Password struct {
+	// New: the new password.
+	New string `json:"new,omitempty"`
+
+	// Current: The current password.
+	Current string `json:"current,omitempty"`
+
+	// IsSet: Indictor that the User has created a password.
+	IsSet bool `json:"isSet"`
 }
 
-// New creates a New provider.
-func New() *Provider {
-	return &Provider{"Password", ""}
-}
-
-// validateEmail returns true if the supplied string contains
-// an `@` and a `.`
-func validateEmail(email string) error {
-	// TODO maybe use a regex here instead?
-	if ok := strings.Contains(email, "@"); ok == false {
-		return ErrInvalidEmail
-	}
-	if strings.Contains(email, ".") == false {
-		return ErrInvalidEmail
-	}
-	return nil
-}
-
-// validatePass returns true if the supplied string is
+// validatePasswordLength returns true if the supplied string is
 // between 4 and 31 character.
-func validatePass(pass string) error {
-	if len(pass) < MIN_PASS_LENGTH {
+func Validate(p string) error {
+	if len(p) < PASSWORD_LENGTH_MIN {
 		return ErrPasswordLength
 	}
-	if len(pass) > MAX_PASS_LENGTH {
+	if len(p) > PASSWORD_LENGTH_MAX {
 		return ErrPasswordLength
 	}
 	return nil
 }
 
-// Authenticate process the request and returns a populated Profile.
-// If the Authenticate method can not authenticate the User based on the
-// request, an error or a redirect URL wll be return.
-func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *profile.Profile) (url string, err error) {
-
-	c := context.NewContext(r)
-	p.URL = r.URL.Host
-
-	email := r.FormValue("Email")
-	pass := r.FormValue("Password")
-
-	up.Provider = p.Name
-	up.ProviderURL = p.URL
-	// Validate email
-	if err := validateEmail(email); err != nil {
-		return "", err
-	}
-	// Validate pasword
-	if err := validatePass(pass); err != nil {
-		return "", err
-	}
-
-	authID := profile.GenAuthID("Password", email)
-	err = profile.Get(c, authID, up)
-
-	passByte := []byte(pass)
-	if err != nil {
-		passHash, err := bcrypt.GenerateFromPassword(passByte, BCRYPT_COST)
-		if err != nil {
-			return "", err
-		}
-		up.Auth = passHash
-		up.ID = email
-		// Decode the form data and add the resulting Person type to the Profile.
-		per := &person.Person{}
-		decoder := schema.NewDecoder()
-		decoder.Decode(per, r.Form)
-		up.Person = per
-
-	} else {
-		// Verify the password.
-		if bcrypt.CompareHashAndPassword(up.Auth, passByte) != nil {
-			return "", ErrInvalidPassword
+func (p *Password) Validate() (err error) {
+	if p.New != "" {
+		if err = Validate(p.New); err != nil {
+			return
 		}
 	}
-	return "", nil
+	if p.Current != "" {
+		if err = Validate(p.Current); err != nil {
+			return
+		}
+	}
+	return
 }
+
+func GenerateFromPassword(password []byte) ([]byte, error) {
+	return bcrypt.GenerateFromPassword(password, BCRYPT_COST)
+}
+
+func CompareHashAndPassword(hash, password []byte) error {
+	if bcrypt.CompareHashAndPassword(hash, password) != nil {
+		return ErrPasswordMismatch
+	}
+	return nil
+}
+
+// func ChangePassword(c appengine.Context,
+// 	emailAddress, currentPassword, newPassword string) (err error) {
+// 
+// 	// Confirm the address is a valid email.
+// 	err = email.Validate(emailAddress)
+// 	if err != nil {
+// 		return
+// 	}
+// 	// Get the UserID.
+// 	// TODO(kylefinley) add status check confirm that the email has been
+// 	// confirmed.
+// 	e, err := email.Get(c, emailAddress)
+// 	if err != nil {
+// 		return
+// 	}
+// 	u, err := Get(c, e.UserID)
+// 	if err != nil {
+// 		return
+// 	}
+// 	// Compare pasword
+// 	if err = pass.CompareHashAndPassword(u.Password,
+// 		[]byte(currentPassword)); err != nil {
+// 		return
+// 	}
+// 	// Set password hash to new value
+// 	err = u.setPassword(newPassword)
+// 	if err != nil {
+// 		return
+// 	}
+// 	err = u.Put(c)
+// 	if err != nil {
+// 		return
+// 	}
+// 	return
+// }
