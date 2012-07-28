@@ -58,6 +58,11 @@ func New() *Email {
 	}
 }
 
+func (e *Email) SetKey(c appengine.Context, address string) {
+	e.Key = datastore.NewKey(c, "Email", address, 0, nil)
+	return
+}
+
 func (e *Email) Put(c appengine.Context) (err error) {
 	e.Updated = time.Now()
 	e.Key, err = ds.Put(c, e.Key, e)
