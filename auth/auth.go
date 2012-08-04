@@ -80,14 +80,14 @@ func breakURL(url string) (name string) {
 	return
 }
 
-// createAndLogin does the following:
+// CreateAndLogin does the following:
 //
 //  - Search for an existing user - session -> Profile -> email address
 //  - Saves the Profile to the datastore
 //  - Creates a User or appends the AuthID to the Requesting user's account
 //  - Logs in the User
 //  - Adds the admin role to the User if they are an GAE Admin.
-func createAndLogin(w http.ResponseWriter, r *http.Request,
+func CreateAndLogin(w http.ResponseWriter, r *http.Request,
 	up *profile.Profile) (u *user.User, err error) {
 
 	var id string
@@ -120,7 +120,6 @@ func createAndLogin(w http.ResponseWriter, r *http.Request,
 			return
 		}
 	} else {
-
 		// New user
 		u = user.New()
 		if err = u.SetKey(c); err != nil {
@@ -174,7 +173,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		panic(`hal/auth: The Profile's "ID" or "Provider" is empty.` +
 			`A Key can not be created.`)
 	}
-	if _, err = createAndLogin(w, r, up); err != nil {
+	if _, err = CreateAndLogin(w, r, up); err != nil {
 		// TODO: set error message in session.
 		http.Redirect(w, r, LoginURL, http.StatusFound)
 		return

@@ -178,7 +178,7 @@ func Test_handler(t *testing.T) {
 	}
 }
 
-func Test_createAndLogin(t *testing.T) {
+func Test_CreateAndLogin(t *testing.T) {
 	setup()
 	defer teardown()
 	c := context.NewContext(nil)
@@ -208,7 +208,7 @@ func Test_createAndLogin(t *testing.T) {
 
 	up.ID = "1"
 	up.Provider = "Example"
-	u, err = createAndLogin(w, r, up)
+	u, err = CreateAndLogin(w, r, up)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -283,7 +283,7 @@ func Test_createAndLogin(t *testing.T) {
 	up = profile.New()
 	up.ID = "2"
 	up.Provider = "AnotherExample"
-	u, err = createAndLogin(w, r, up)
+	u, err = CreateAndLogin(w, r, up)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -356,7 +356,7 @@ func Test_createAndLogin(t *testing.T) {
 	up = profile.New()
 	up.ID = "1"
 	up.Provider = "Example"
-	u, err = createAndLogin(w, r, up)
+	u, err = CreateAndLogin(w, r, up)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}

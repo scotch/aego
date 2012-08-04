@@ -6,12 +6,12 @@
 Package api provides rpc service for Users.
 */
 
-package api
+package user
 
 import (
 	"github.com/scotch/hal/context"
-	"net/http"
-	"net/http/httptest"
+	//"net/http"
+	//"net/http/httptest"
 	"testing"
 )
 
@@ -22,11 +22,11 @@ func teardown() {
 	context.Close()
 }
 
-func TestCurrent(t *testing.T) {
+func TestServiceCurrent(t *testing.T) {
 	setup()
 	defer teardown()
 
-	r, _ := http.NewRequest("GET", "/-/api/v1", nil)
-	w := httptest.NewRecorder()
+	//r, _ := http.NewRequest("GET", "/-/api/v1", nil)
+	//w := httptest.NewRecorder()
 
 }
