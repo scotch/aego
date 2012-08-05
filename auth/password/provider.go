@@ -156,24 +156,3 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
 	err = authenticate(w, r, pf, pass, pers, userID)
 	return "", err
 }
-
-// func LoginByEmailAndPassword(w http.ResponseWriter, r *http.Request, emailAddress, password string) (u *User, err error) {
-// 
-// 	c := appengine.NewContext(r)
-// 	// Get UserID
-// 	e, err := email.Get(c, emailAddress)
-// 	if err != nil {
-// 		return
-// 	}
-// 	u, err = Get(c, e.UserID)
-// 	if err != nil {
-// 		return
-// 	}
-// 	// Compare pasword
-// 	if err = CompareHashAndPassword(u.Password, []byte(password)); err != nil {
-// 		return
-// 	}
-// 	// We made it. Log in the User
-// 	err = CurrentUserSetID(w, r, u.Key.StringID())
-// 	return
-// }

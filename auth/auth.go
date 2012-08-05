@@ -88,30 +88,31 @@ func breakURL(url string) (name string) {
 //  - Logs in the User
 //  - Adds the admin role to the User if they are an GAE Admin.
 func CreateAndLogin(w http.ResponseWriter, r *http.Request,
-	up *profile.Profile) (u *user.User, err error) {
+	p *profile.Profile) (u *user.User, err error) {
 
 	var id string
-	var idUP string
-	var idSess string
 	var saveUser bool
 
 	c := context.NewContext(r)
-	up.SetKey(c)
+	p.SetKey(c)
 	// Check the session for a UserID
-	idSess, _ = user.CurrentUserID(r)
+	sessID, _ := user.CurrentUserID(r)
 	// Check for an existing Profile
 	up2 := profile.New()
-	if err := profile.Get(c, up.Key.StringID(), up2); err == nil {
-		idSess = up2.UserID
+	if err := profile.Get(c, p.Key.StringID(), up2); err == nil {
+		sessID = up2.UserID
 	}
-	if idUP != "" || idSess != "" {
-		if idUP == idSess {
-			id = idSess
+	if p.UserID != "" {
+		saveUser = true
+	}
+	if p.UserID != "" || sessID != "" {
+		if p.UserID == sessID {
+			id = sessID
 		} else {
 			// TWO USER ACCOUNTS FOR 1 USEPROFILE
 			// TODO implement some type of user merge here.
 			// for the time being use the logged in User's ID
-			id = idSess
+			id = sessID
 		}
 		// Get the user
 		if u, err = user.Get(c, id); err != nil {
@@ -128,7 +129,7 @@ func CreateAndLogin(w http.ResponseWriter, r *http.Request,
 		saveUser = true
 	}
 	// Add AuthID
-	if u.AddAuthID(up.Key.StringID()) {
+	if u.AddAuthID(p.Key.StringID()) {
 		saveUser = true
 	}
 	// If current user is an admin in GAE add role to User
@@ -146,17 +147,18 @@ func CreateAndLogin(w http.ResponseWriter, r *http.Request,
 		err = u.Put(c)
 	}
 	// TODO should the Profile always be saved?
-	up.UserID = u.Key.StringID()
-	err = up.Put(c)
+	p.UserID = u.Key.StringID()
+	err = p.Put(c)
 	return
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	var url string
+	var err error
 	up := profile.New()
 	k := breakURL(r.URL.Path)
 	p := providers[k]
-	url, err := p.Authenticate(w, r, up)
-	if err != nil {
+	if url, err = p.Authenticate(w, r, up); err != nil {
 		// TODO: set error message in session.
 		http.Redirect(w, r, LoginURL, http.StatusFound)
 		return
