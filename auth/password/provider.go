@@ -66,6 +66,99 @@ func decodePerson(r *http.Request) *person.Person {
 	return p
 }
 
+func authenticate(w http.ResponseWriter, r *http.Request,
+	pf *profile.Profile, pass *Password, pers *person.Person, userID string) (err error) {
+
+	c := context.NewContext(r)
+	//var userID string
+	var e *email.Email
+	var passHash []byte
+	var hasProfile bool
+
+	// Validate
+
+	// Validate pasword
+	if err := pass.Validate(); err != nil {
+		return err
+	}
+	// Validate email
+	if err := email.Validate(pers.Email); err != nil {
+		return err
+	}
+
+	// Search for existing account
+
+	// Search for Session
+	// Search Email
+	if e, err = email.Get(c, pers.Email); err == nil {
+		if e.UserID != "" {
+			if e.UserID != userID {
+				// TODO handle user account merge.
+			}
+			// Set the useID to the UserID stored in the saved Email
+			userID = e.UserID
+		}
+	}
+	// Search for Profile
+	if userID != "" {
+		pid := profile.GenAuthID("Password", userID)
+		if err = profile.Get(c, pid, pf); err == nil {
+			hasProfile = true
+		}
+	}
+	// Update or Login
+	if pass.Current != "" {
+		if !hasProfile {
+			return ErrProfileNotFound
+		}
+		// Check
+		if err := CompareHashAndPassword(pf.Auth, []byte(pass.Current)); err != nil {
+			return err
+		}
+	}
+	// Update or Create
+	if pass.New != "" {
+		// If there is an existing profile, check the password
+		if hasProfile && pass.Current == "" {
+			if err := CompareHashAndPassword(pf.Auth, []byte(pass.New)); err != nil {
+				return err
+			}
+		} else {
+			passHash, err = GenerateFromPassword([]byte(pass.New))
+			pf.Auth = passHash
+		}
+		pf.ID = e.Address
+		if userID != "" {
+			pf.UserID = userID
+		}
+		pf.Person = pers
+	}
+	if pf.UserID == "" {
+		pf.UserID, _ = user.AllocateID(c)
+	}
+	pf.ID = pf.UserID
+	return
+}
+
+// Authenticate process the request and returns a populated Profile.
+// If the Authenticate method can not authenticate the User based on the
+// request, an error or a redirect URL wll be return.
+func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
+	pf *profile.Profile, url string, err error) {
+
+	p.URL = r.URL.Host
+	pf = profile.New(p.Name, p.URL)
+
+	pass := &Password{
+		New:     r.FormValue("Password.New"),
+		Current: r.FormValue("Password.Current"),
+	}
+	pers := decodePerson(r)
+	userID, _ := user.CurrentUserID(r)
+	err = authenticate(w, r, pf, pass, pers, userID)
+	return pf, "", err
+}
+
 // func validate(e *email.Email, p *Password) error {
 // 	// Validate pasword
 // 	if err := p.Validate(); err != nil {
@@ -155,93 +248,3 @@ func decodePerson(r *http.Request) *person.Person {
 // 		return err
 // 	}
 // }
-
-func authenticate(w http.ResponseWriter, r *http.Request,
-	pf *profile.Profile, pass *Password, pers *person.Person, userID string) (err error) {
-
-	c := context.NewContext(r)
-	//var userID string
-	var e *email.Email
-	var passHash []byte
-	var hasProfile bool
-
-	// Validate
-
-	// Validate pasword
-	if err := pass.Validate(); err != nil {
-		return err
-	}
-	// Validate email
-	if err := email.Validate(pers.Email); err != nil {
-		return err
-	}
-
-	// Search for existing account
-
-	// Search for Session
-	// Search Email
-	if e, err = email.Get(c, pers.Email); err == nil {
-		if e.UserID != "" {
-			if e.UserID != userID {
-				// TODO handle user account merge.
-			}
-			// Set the useID to the UserID stored in the saved Email
-			userID = e.UserID
-		}
-	}
-	// Search for Profile
-	if userID != "" {
-		pid := profile.GenAuthID("Password", userID)
-		if err = profile.Get(c, pid, pf); err == nil {
-			hasProfile = true
-		}
-	}
-	// Update or Login
-	if pass.Current != "" {
-		if !hasProfile {
-			return ErrProfileNotFound
-		}
-		// Check
-		if err := CompareHashAndPassword(pf.Auth, []byte(pass.Current)); err != nil {
-			return err
-		}
-	}
-	// Update or Create
-	if pass.New != "" {
-		// If there is an existing profile, check the password
-		if hasProfile && pass.Current == "" {
-			if err := CompareHashAndPassword(pf.Auth, []byte(pass.New)); err != nil {
-				return err
-			}
-		} else {
-			passHash, err = GenerateFromPassword([]byte(pass.New))
-			pf.Auth = passHash
-		}
-		pf.ID = e.Address
-		if userID != "" {
-			pf.UserID = userID
-		}
-		pf.Person = pers
-	}
-	pf.ID = pf.UserID
-	return
-}
-
-// Authenticate process the request and returns a populated Profile.
-// If the Authenticate method can not authenticate the User based on the
-// request, an error or a redirect URL wll be return.
-func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
-	pf *profile.Profile, url string, err error) {
-
-	p.URL = r.URL.Host
-	pf = profile.New(p.Name, p.URL)
-
-	pass := &Password{
-		New:     r.FormValue("Password.New"),
-		Current: r.FormValue("Password.Current"),
-	}
-	pers := decodePerson(r)
-	userID, _ := user.CurrentUserID(r)
-	err = authenticate(w, r, pf, pass, pers, userID)
-	return pf, "", err
-}

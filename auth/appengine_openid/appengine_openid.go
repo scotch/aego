@@ -43,7 +43,7 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
 		url := r.FormValue("provider")
 		redirectURL := r.URL.Path + "/callback"
 		loginUrl, err := aeuser.LoginURLFederated(c, redirectURL, url)
-		return loginUrl, err
+		return up, loginUrl, err
 	}
 
 	if u.FederatedIdentity != "" {
@@ -59,5 +59,5 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
 	per.URL = u.FederatedIdentity
 	up.Person = per
 
-	return "", nil
+	return up, "", nil
 }
