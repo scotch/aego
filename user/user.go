@@ -48,13 +48,19 @@ func New() *User {
 	}
 }
 
+// AllocateID is a convenience method for allocating a UserID
+func AllocateID(c appengine.Context) (id string, err error) {
+	id, err = ds.AllocateID(c, "User")
+	return
+}
+
 // SetKey creates and embeds a ds.Key into the entity.
 func (u *User) SetKey(c appengine.Context) (err error) {
 	// If we are saving for the first time lets get an id so that we
 	// can save the id to the json data before saving the entity. This
 	// prevents us from having to save twice.
 	if u.Key == nil || u.Key.StringID() == "" {
-		id, err := ds.AllocateID(c, "User")
+		id, err := AllocateID(c)
 		if err != nil {
 			return err
 		}

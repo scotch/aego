@@ -31,9 +31,7 @@ func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request,
 	c := appengine.NewContext(r)
 	c.Errorf(`args: %v`, args)
 	userID, _ := user.CurrentUserID(r)
-	pf := profile.New()
-	pf.Provider = "Password"
-	pf.ProviderURL = r.URL.Host
+	pf := profile.New("Password", r.URL.Host)
 	err = authenticate(w, r, pf, args.Password, args.Person, userID)
 	if _, err = auth.CreateAndLogin(w, r, pf); err != nil {
 		return err

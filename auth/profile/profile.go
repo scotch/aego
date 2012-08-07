@@ -10,10 +10,15 @@ package profile
 import (
 	"appengine"
 	"appengine/datastore"
+	aeuser "appengine/user"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/ds"
 	"github.com/scotch/hal/person"
+	"github.com/scotch/hal/user"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -30,7 +35,7 @@ type Profile struct {
 	// authentication. The Provider should be in the proper case for
 	// example a User who was authenticated through Google should have
 	// "Google" here and not "google"
-	Provider string
+	ProviderName string
 	// ProviderURL is the URL that is commonly accepted as the
 	// originator of the authentication. For example Google plus would
 	// be http://plus.google.com and not http://google.com.
@@ -54,11 +59,13 @@ type Profile struct {
 }
 
 // New creates a new Profile and set the Created to now
-func New() *Profile {
+func New(providerName, providerURL string) *Profile {
 	return &Profile{
-		Person:  new(person.Person),
-		Created: time.Now(),
-		Updated: time.Now(),
+		ProviderName: providerName,
+		ProviderURL:  providerURL,
+		Person:       new(person.Person),
+		Created:      time.Now(),
+		Updated:      time.Now(),
 	}
 }
 
@@ -70,16 +77,16 @@ func GenAuthID(provider, id string) string {
 	return fmt.Sprintf("%s|%s", strings.ToLower(provider), id)
 }
 
-// NewKey generates a *datastore.Key based on a string representing
+// newKey generates a *datastore.Key based on a string representing
 // the provider and a unique id provided by the provider.
-func NewKey(c appengine.Context, provider, id string) *datastore.Key {
+func newKey(c appengine.Context, provider, id string) *datastore.Key {
 	authID := GenAuthID(provider, id)
 	return datastore.NewKey(c, "AuthProfile", authID, 0, nil)
 }
 
 // SetKey creates and embeds a ds.Key to the entity.
 func (u *Profile) SetKey(c appengine.Context) (err error) {
-	u.Key = NewKey(c, u.Provider, u.ID)
+	u.Key = newKey(c, u.ProviderName, u.ID)
 	return
 }
 
@@ -93,10 +100,10 @@ func (u *Profile) Encode() error {
 		u.Person = new(person.Person)
 	}
 	u.Person.Provider = &person.PersonProvider{
-		Name: u.Provider,
+		Name: u.ProviderName,
 		URL:  u.ProviderURL,
 	}
-	u.Person.Kind = fmt.Sprintf("%s#person", strings.ToLower(u.Provider))
+	u.Person.Kind = fmt.Sprintf("%s#person", strings.ToLower(u.ProviderName))
 	u.Person.ID = u.ID
 	// TODO(kylefinley) consider alternatives to returning miliseconds.
 	// Convert time to unix miliseconds for javascript
@@ -138,4 +145,73 @@ func (u *Profile) Put(c appengine.Context) error {
 	key, err := ds.Put(c, u.Key, u)
 	u.Key = key
 	return err
+}
+
+// UpdateUser does the following:
+//  - Search for an existing user - session -> Profile -> email address
+//  - Creates a User or appends the AuthID to the Requesting user's account
+//  - Adds the admin role to the User if they are a GAE Admin.
+func (p *Profile) UpdateUser(w http.ResponseWriter, r *http.Request) (u *user.User, err error) {
+
+	c := context.NewContext(r)
+	if p.Key == nil {
+		if p.ProviderName == "" && p.ProviderURL == "" {
+			return nil, errors.New("auth: key not set")
+		}
+		p.SetKey(c)
+	}
+	var saveUser bool // flag indicating that the user needs to be saved.
+
+	// Find the UserID
+	// if the AuthProfile doesn't have a UserID look it up. And populate the
+	// UserID from the saved profile.
+	if p.UserID == "" {
+		p2 := &Profile{}
+		if err := Get(c, p.Key.StringID(), p2); err == nil {
+			p.UserID = p2.UserID
+		}
+	}
+	// look up the UserID in the session
+	currentUserID, _ := user.CurrentUserID(r)
+	if currentUserID != "" {
+		if p.UserID == "" {
+			p.UserID = currentUserID
+		} else {
+			// TODO: User merge
+		}
+	}
+	// If we still don't have a UserID create a new user
+	if p.UserID == "" {
+		// Create User
+		u = user.New()
+		// Allocation an new ID
+		if err = u.SetKey(c); err != nil {
+			return u, err
+		}
+		saveUser = true
+	} else {
+		if u, err = user.Get(c, p.UserID); err != nil {
+			// if user is not found we have some type of syncing problem.
+			c.Criticalf(`auth: userID: %v was saved to Profile / Session, but was not found in the datastore`, p.UserID)
+			return
+		}
+	}
+	// Add AuthID
+	if u.AddAuthID(p.Key.StringID()) {
+		saveUser = true
+	}
+	// If current user is an admin in GAE add role to User
+	if aeuser.IsAdmin(c) {
+		// Save the roll to the session
+		_ = user.CurrentUserSetRole(w, r, "admin", true)
+		// Add the role to the user's roles.
+		if u.AddRole("admin") {
+			saveUser = true
+		}
+	}
+	if saveUser {
+		err = u.Put(c)
+	}
+	p.UserID = u.Key.StringID()
+	return
 }

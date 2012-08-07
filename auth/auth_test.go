@@ -31,41 +31,39 @@ type TestProvider struct {
 	dev.Provider
 }
 
-func (p *TestProvider) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *profile.Profile) (url string, err error) {
-	return "/redirect-to-url", nil
+func (p *TestProvider) Authenticate(w http.ResponseWriter, r *http.Request) (
+	up *profile.Profile, url string, err error) {
+	return nil, "/redirect-to-url", nil
 }
 
 type TPRedirect struct {
 	dev.Provider
 }
 
-func (p *TPRedirect) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *profile.Profile) (url string, err error) {
-	return "/redirect-to-url", nil
+func (p *TPRedirect) Authenticate(w http.ResponseWriter, r *http.Request) (
+	up *profile.Profile, url string, err error) {
+	return nil, "/redirect-to-url", nil
 }
 
 type TPError struct {
 	dev.Provider
 }
 
-func (p *TPError) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *profile.Profile) (url string, err error) {
+func (p *TPError) Authenticate(w http.ResponseWriter, r *http.Request) (
+	up *profile.Profile, url string, err error) {
 	err = errors.New("Mock error")
-	return "", err
+	return nil, "", err
 }
 
 type TPComplete struct {
 	dev.Provider
 }
 
-func (p *TPComplete) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *profile.Profile) (url string, err error) {
-
+func (p *TPComplete) Authenticate(w http.ResponseWriter, r *http.Request) (
+	up *profile.Profile, url string, err error) {
+	up = profile.New("Example", "example.com")
 	up.ID = "1"
-	up.Provider = "Example"
-	up.ProviderURL = "example.com"
-	return "", nil
+	return up, "", nil
 }
 
 func TestNew(t *testing.T) {
@@ -183,7 +181,7 @@ func Test_CreateAndLogin(t *testing.T) {
 	defer teardown()
 	c := context.NewContext(nil)
 
-	up := profile.New()
+	up := profile.New("Example", "example.com")
 	r, _ := http.NewRequest("GET", "http://localhost:8080/-/auth/example4", nil)
 	w := httptest.NewRecorder()
 
@@ -207,7 +205,8 @@ func Test_CreateAndLogin(t *testing.T) {
 	// Create.
 
 	up.ID = "1"
-	up.Provider = "Example"
+	up.ProviderName = "Example"
+	up.SetKey(c)
 	u, err = CreateAndLogin(w, r, up)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
@@ -280,9 +279,9 @@ func Test_CreateAndLogin(t *testing.T) {
 
 	// Create.
 
-	up = profile.New()
+	up = profile.New("AnotherExample", "anotherexample.com")
 	up.ID = "2"
-	up.Provider = "AnotherExample"
+	up.SetKey(c)
 	u, err = CreateAndLogin(w, r, up)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
@@ -353,9 +352,9 @@ func Test_CreateAndLogin(t *testing.T) {
 
 	// Login.
 
-	up = profile.New()
+	up = profile.New("Example", "example.com")
 	up.ID = "1"
-	up.Provider = "Example"
+	up.SetKey(c)
 	u, err = CreateAndLogin(w, r, up)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)

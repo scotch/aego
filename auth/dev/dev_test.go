@@ -6,7 +6,6 @@ package dev
 
 import (
 	"github.com/scotch/hal/auth"
-	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
 	"net/http"
 	"net/http/httptest"
@@ -53,8 +52,7 @@ func TestAuthenticate(t *testing.T) {
 
 	// Process.
 
-	up := profile.New()
-	url, err := pro.Authenticate(w, req, up)
+	up, url, err := pro.Authenticate(w, req)
 
 	// Check.
 

@@ -27,15 +27,13 @@ func New() *Provider {
 // Authenticate process the request and returns a populated UserProfile.
 // If the Authenticate method can not authenticate the User based on the
 // request, an error or a redirect URL wll be return.
-func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *profile.Profile) (url string, err error) {
+func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
+	up *profile.Profile, url string, err error) {
 
 	c := context.NewContext(r)
 
 	// Set provider info.
-
-	up.Provider = p.Name
-	up.ProviderURL = p.URL
+	up = profile.New(p.Name, p.URL)
 
 	// Check for current User.
 

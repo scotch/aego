@@ -24,7 +24,6 @@ Example Usage:
 package auth
 
 import (
-	aeuser "appengine/user"
 	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/user"
@@ -51,7 +50,7 @@ var (
 var providers = make(map[string]authenticater)
 
 type authenticater interface {
-	Authenticate(http.ResponseWriter, *http.Request, *profile.Profile) (string, error)
+	Authenticate(http.ResponseWriter, *http.Request) (*profile.Profile, string, error)
 }
 
 // Register adds an Authenticater for the auth service.
@@ -89,65 +88,13 @@ func breakURL(url string) (name string) {
 //  - Adds the admin role to the User if they are an GAE Admin.
 func CreateAndLogin(w http.ResponseWriter, r *http.Request,
 	p *profile.Profile) (u *user.User, err error) {
-
-	var id string
-	var saveUser bool
-
 	c := context.NewContext(r)
-	p.SetKey(c)
-	// Check the session for a UserID
-	sessID, _ := user.CurrentUserID(r)
-	// Check for an existing Profile
-	up2 := profile.New()
-	if err := profile.Get(c, p.Key.StringID(), up2); err == nil {
-		sessID = up2.UserID
+	if u, err = p.UpdateUser(w, r); err != nil {
+		return
 	}
-	if p.UserID != "" {
-		saveUser = true
+	if err = user.CurrentUserSetID(w, r, p.UserID); err != nil {
+		return
 	}
-	if p.UserID != "" || sessID != "" {
-		if p.UserID == sessID {
-			id = sessID
-		} else {
-			// TWO USER ACCOUNTS FOR 1 USEPROFILE
-			// TODO implement some type of user merge here.
-			// for the time being use the logged in User's ID
-			id = sessID
-		}
-		// Get the user
-		if u, err = user.Get(c, id); err != nil {
-			// if user is not found we have some type of syncing problem.
-			c.Criticalf(`auth: userID: %v was saved to Profile / Session, but was not found in the datastore`, id)
-			return
-		}
-	} else {
-		// New user
-		u = user.New()
-		if err = u.SetKey(c); err != nil {
-			return
-		}
-		saveUser = true
-	}
-	// Add AuthID
-	if u.AddAuthID(p.Key.StringID()) {
-		saveUser = true
-	}
-	// If current user is an admin in GAE add role to User
-	if aeuser.IsAdmin(c) {
-		// Save the roll to the session
-		_ = user.CurrentUserSetRole(w, r, "admin", true)
-		// Add the role to the user's roles.
-		if u.AddRole("admin") {
-			saveUser = true
-		}
-	}
-	// Log the user in.
-	_ = user.CurrentUserSetID(w, r, u.Key.StringID())
-	if saveUser {
-		err = u.Put(c)
-	}
-	// TODO should the Profile always be saved?
-	p.UserID = u.Key.StringID()
 	err = p.Put(c)
 	return
 }
@@ -155,10 +102,10 @@ func CreateAndLogin(w http.ResponseWriter, r *http.Request,
 func handler(w http.ResponseWriter, r *http.Request) {
 	var url string
 	var err error
-	up := profile.New()
+	var up *profile.Profile
 	k := breakURL(r.URL.Path)
 	p := providers[k]
-	if url, err = p.Authenticate(w, r, up); err != nil {
+	if up, url, err = p.Authenticate(w, r); err != nil {
 		// TODO: set error message in session.
 		http.Redirect(w, r, LoginURL, http.StatusFound)
 		return
@@ -171,8 +118,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 	// If we don't have a URL or an error then the user has been authenticated.
 	// Check the Profile for an ID and Provider.
-	if up.ID == "" || up.Provider == "" {
-		panic(`hal/auth: The Profile's "ID" or "Provider" is empty.` +
+	if up.ID == "" || up.ProviderName == "" {
+		panic(`hal/auth: The Profile's "ID" or "ProviderName" is empty.` +
 			`A Key can not be created.`)
 	}
 	if _, err = CreateAndLogin(w, r, up); err != nil {

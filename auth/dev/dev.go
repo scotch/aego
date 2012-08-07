@@ -27,11 +27,10 @@ func New() *Provider {
 // Authenticate process the request and returns a populated Profile.
 // If the Authenticate method can not authenticate the User based on the
 // request, an error or a redirect URL wll be return.
-func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
-	up *profile.Profile) (url string, err error) {
+func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
+	up *profile.Profile, url string, err error) {
 
-	up.Provider = p.Name
-	up.ProviderURL = p.URL
+	up = profile.New(p.Name, p.URL)
 	// Add the User's Unique ID. If an ID is not provided make this
 	// value "default"
 	up.ID = r.FormValue("ID")
@@ -45,5 +44,5 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
 	decoder.Decode(per, r.Form)
 	up.Person = per
 
-	return "", nil
+	return up, "", nil
 }

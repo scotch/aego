@@ -46,7 +46,6 @@ func TestAuthenticate_Validate(t *testing.T) {
 	pro := setup()
 	defer tearDown()
 
-	var pf *profile.Profile
 	var err error
 	var v url.Values
 	var r *http.Request
@@ -59,8 +58,7 @@ func TestAuthenticate_Validate(t *testing.T) {
 	v.Set("Password.New", "bad")
 	r = createRequest(v)
 	// Check.
-	pf = profile.New()
-	if _, err = pro.Authenticate(w, r, pf); err == nil {
+	if _, _, err = pro.Authenticate(w, r); err == nil {
 		t.Errorf(`Invalid Email or Password should result in an error`)
 	}
 }
@@ -88,13 +86,18 @@ func TestAuthenticate_Scenario1(t *testing.T) {
 	v.Set("Name.GivenName", "Barack")
 	r = createRequest(v)
 	// Check.
-	pf = profile.New()
-	if uRL, err = pro.Authenticate(w, r, pf); uRL != "" || err != nil {
+	if pf, uRL, err = pro.Authenticate(w, r); uRL != "" || err != nil {
 		t.Errorf(`url: %v, want: ""`, uRL)
 		t.Errorf(`err: %v, want: %v`, err, nil)
 	}
 	if x := pf.Person.Name.GivenName; x != "Barack" {
 		t.Errorf(`pf.Person.Name.GivenName: %v, want %v`, x, "Barack")
+	}
+	if x := pf.UserID; x == "" {
+		t.Errorf(`pf.UserID: %v, want %v`, x, "Some ID")
+	}
+	if x := pf.ID; x == "" {
+		t.Errorf(`pf.ID: %v, want %v`, x, "Some ID")
 	}
 }
 
@@ -121,17 +124,15 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 	v.Set("Password.Current", "secret1")
 	r = createRequest(v)
 	// Check.
-	pf = profile.New()
-	if uRL, err = pro.Authenticate(w, r, pf); uRL != "" || err != ErrProfileNotFound {
+	if pf, uRL, err = pro.Authenticate(w, r); uRL != "" || err != ErrProfileNotFound {
 		t.Errorf(`url: %v, want: ""`, uRL)
 		t.Errorf(`err: %v, want: %v`, err, ErrProfileNotFound)
 	}
 
 	// Setup.
-	pf = profile.New()
+	pf = profile.New("Password", "")
 	pf.UserID = "1"
 	pf.ID = "1"
-	pf.Provider = "Password"
 	passHash, _ := GenerateFromPassword([]byte("secret1"))
 	pf.Auth = passHash
 	pf.SetKey(c)
@@ -155,8 +156,7 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 	v.Set("Name.GivenName", "Berry")
 	r = createRequest(v)
 	// Check.
-	pf = profile.New()
-	if uRL, err = pro.Authenticate(w, r, pf); uRL != "" || err != nil {
+	if pf, uRL, err = pro.Authenticate(w, r); uRL != "" || err != nil {
 		t.Errorf(`url: %v, want: ""`, uRL)
 		t.Fatalf(`err: %v, want: %v`, err, nil)
 	}
@@ -169,13 +169,15 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 	v.Set("Password.Current", "fakepass")
 	r = createRequest(v)
 	// Check.
-	pf = profile.New()
-	uRL, err = pro.Authenticate(w, r, pf)
+	pf, uRL, err = pro.Authenticate(w, r)
 	if err != ErrPasswordMismatch {
 		t.Errorf(`err: %v, want: %v`, err, ErrPasswordMismatch)
 	}
 	if x := pf.Person.Name.GivenName; x != "Barack" {
 		t.Errorf(`.Person should not be updated on in-correct password`)
+	}
+	if x := pf.UserID; x != "1" {
+		t.Errorf(`pf.UserID: %v, want %v`, x, "1")
 	}
 	// 2. Update
 	// a. Correct password.
@@ -186,13 +188,15 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 	v.Set("Name.GivenName", "Berry")
 	r = createRequest(v)
 	// Check.
-	pf = profile.New()
-	if uRL, err = pro.Authenticate(w, r, pf); uRL != "" || err != nil {
+	if pf, uRL, err = pro.Authenticate(w, r); uRL != "" || err != nil {
 		t.Errorf(`url: %v, want: ""`, uRL)
 		t.Errorf(`err: %v, want: %v`, err, nil)
 	}
 	if x := pf.Person.Name.GivenName; x != "Berry" {
 		t.Errorf(`.Person should be updated on update`)
+	}
+	if x := pf.UserID; x != "1" {
+		t.Errorf(`pf.UserID: %v, want %v`, x, "1")
 	}
 	if err := CompareHashAndPassword(pf.Auth, []byte("secret2")); err != nil {
 		t.Errorf(`Password was not changed`)
@@ -205,8 +209,7 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 	v.Set("Name.GivenName", "Bob")
 	r = createRequest(v)
 	// Check.
-	pf = profile.New()
-	uRL, err = pro.Authenticate(w, r, pf)
+	pf, uRL, err = pro.Authenticate(w, r)
 	if err != ErrPasswordMismatch {
 		t.Errorf(`err: %v, want: %v`, err, ErrPasswordMismatch)
 	}
@@ -221,13 +224,15 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 	v.Set("Name.GivenName", "Bob1")
 	r = createRequest(v)
 	// Check.
-	pf = profile.New()
-	if uRL, err = pro.Authenticate(w, r, pf); uRL != "" || err != nil {
+	if pf, uRL, err = pro.Authenticate(w, r); uRL != "" || err != nil {
 		t.Errorf(`url: %v, want: ""`, uRL)
 		t.Errorf(`err: %v, want: %v`, err, nil)
 	}
 	if x := pf.Person.Name.GivenName; x != "Bob1" {
 		t.Errorf(`.Person should be updated on update`)
+	}
+	if x := pf.UserID; x != "1" {
+		t.Errorf(`pf.UserID: %v, want %v`, x, "1")
 	}
 	if err := CompareHashAndPassword(pf.Auth, []byte("secret1")); err != nil {
 		t.Errorf(`Password was not changed`)
@@ -239,8 +244,7 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 	v.Set("Name.GivenName", "Bob2")
 	r = createRequest(v)
 	// Check.
-	pf = profile.New()
-	uRL, err = pro.Authenticate(w, r, pf)
+	pf, uRL, err = pro.Authenticate(w, r)
 	if err != ErrPasswordMismatch {
 		t.Errorf(`err: %v, want: %v`, err, ErrPasswordMismatch)
 	}
@@ -258,6 +262,8 @@ func TestAuthenticate_Scenario3(t *testing.T) {
 	defer tearDown()
 
 	var pf *profile.Profile
+	var uRL string
+	var err error
 	var v url.Values
 	var r *http.Request
 
@@ -273,13 +279,15 @@ func TestAuthenticate_Scenario3(t *testing.T) {
 	_ = user.CurrentUserSetID(w, r, "1001")
 
 	// Check.
-	pf = profile.New()
-	if uRL, err := pro.Authenticate(w, r, pf); uRL != "" || err != nil {
+	if pf, uRL, err = pro.Authenticate(w, r); uRL != "" || err != nil {
 		t.Errorf(`url: %v, want: ""`, uRL)
 		t.Errorf(`err: %v, want: %v`, err, nil)
 	}
 	if x := pf.Person.Name.GivenName; x != "Bob" {
 		t.Errorf(`.Person should be updated`)
+	}
+	if x := pf.UserID; x != "1001" {
+		t.Errorf(`pf.UserID: %v, want %v`, x, "1001")
 	}
 	if pf.UserID != "1001" {
 		t.Errorf(`pf.UserID: %v, want: %v`, pf.UserID, "1001")

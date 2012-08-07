@@ -69,8 +69,8 @@ func (p *Provider) callback(r *http.Request) error {
 }
 
 func (p *Provider) Authenticate(r *http.Request) (
-	redirectURL string, up *profile.Profile, err error) {
+	up *profile.Profile, redirectURL string, err error) {
 
 	//c := context.NewContext(r)
-	return "", up, nil
+	return up, "", nil
 }

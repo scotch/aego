@@ -66,6 +66,96 @@ func decodePerson(r *http.Request) *person.Person {
 	return p
 }
 
+// func validate(e *email.Email, p *Password) error {
+// 	// Validate pasword
+// 	if err := p.Validate(); err != nil {
+// 		return err
+// 	}
+// 	// Validate email
+// 	if err := email.Validate(pers.Email); err != nil {
+// 		return err
+// 	}
+// 	return
+// }
+// 
+// func getUserID(w http.ResponseWriter, r *http.Request, emailAddress *email.Email) (id string) {
+// 	// TODO: User merge if the session UserID is different then the email UserID
+// 	// search session
+// 	sessID, _ := user.CurrentUserID(r)
+// 	if sessID != "" {
+// 		return sessID
+// 	}
+// 	// search by email
+// 	c := context.NewContext(r)
+// 	e, err := email.Get(c, emailAddress)
+// 	if err != nil {
+// 		return ""
+// 	}
+// }
+// 
+// func create(w http.ResponseWriter, r *http.Request,
+// 	pf *profile.Profile, pass *Password, pers *person.Person, userID string) (err error) {
+// 
+// 	c := context.NewContext(r)
+// 	if err = validate(pers.Email, pass); err != nil {
+// 		return err
+// 	}
+// 	userID := getUserID(w, r, pers.Email)
+// 	// if we have a user ID check for a profile
+// 	if userID != "" {
+// 		pid := profile.GenAuthID("Password", userID)
+// 		if err = profile.Get(c, pid, pf); err == nil {
+// 			hasProfile = true
+// 		}
+// 	}
+// 	userID, _ = user.AllocateID(c)
+// 	passHash, _ := GenerateFromPassword([]byte(pass.New))
+// 
+// 	pf.ID = userID
+// 	pf.UserID = userID
+// 	pf.Auth = passHash
+// 	pf.Person = pers
+// 
+// 	return
+// }
+// 
+// func login(w http.ResponseWriter, r *http.Request,
+// 	pf *profile.Profile, pass *Password, pers *person.Person, userID string) (err error) {
+// 
+// 	c := context.NewContext(r)
+// 	if err = validate(pers.Email, pass); err != nil {
+// 		return err
+// 	}
+// 	userID := getUserID(w, r, pers.Email)
+// 	// if we have a user ID check for a profile
+// 	if userID == "" {
+// 		return ErrProfileNotFound
+// 	}
+// 	pid := profile.GenAuthID("Password", userID)
+// 	if err = profile.Get(c, pid, pf); err != nil {
+// 		return ErrProfileNotFound
+// 	}
+// 	if err := CompareHashAndPassword(pf.Auth, []byte(pass.Current)); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// 	userID, _ = user.AllocateID(c)
+// 	passHash, _ := GenerateFromPassword([]byte(pass.New))
+// 
+// 	pf.ID = userID
+// 	pf.UserID = userID
+// 	pf.Auth = passHash
+// 	pf.Person = pers
+// 
+// 	if !hasProfile {
+// 		return ErrProfileNotFound
+// 	}
+// 	// Check
+// 	if err := CompareHashAndPassword(pf.Auth, []byte(pass.Current)); err != nil {
+// 		return err
+// 	}
+// }
+
 func authenticate(w http.ResponseWriter, r *http.Request,
 	pf *profile.Profile, pass *Password, pers *person.Person, userID string) (err error) {
 
@@ -118,7 +208,7 @@ func authenticate(w http.ResponseWriter, r *http.Request,
 	}
 	// Update or Create
 	if pass.New != "" {
-		// I there is an Existing Profile. Log chedk the password
+		// If there is an existing profile, check the password
 		if hasProfile && pass.Current == "" {
 			if err := CompareHashAndPassword(pf.Auth, []byte(pass.New)); err != nil {
 				return err
@@ -133,19 +223,18 @@ func authenticate(w http.ResponseWriter, r *http.Request,
 		}
 		pf.Person = pers
 	}
+	pf.ID = pf.UserID
 	return
 }
 
 // Authenticate process the request and returns a populated Profile.
 // If the Authenticate method can not authenticate the User based on the
 // request, an error or a redirect URL wll be return.
-func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
-	pf *profile.Profile) (url string, err error) {
+func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
+	pf *profile.Profile, url string, err error) {
 
-	p.Name = "Password"
 	p.URL = r.URL.Host
-	pf.Provider = p.Name
-	pf.ProviderURL = p.URL
+	pf = profile.New(p.Name, p.URL)
 
 	pass := &Password{
 		New:     r.FormValue("Password.New"),
@@ -154,5 +243,5 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request,
 	pers := decodePerson(r)
 	userID, _ := user.CurrentUserID(r)
 	err = authenticate(w, r, pf, pass, pers, userID)
-	return "", err
+	return pf, "", err
 }
