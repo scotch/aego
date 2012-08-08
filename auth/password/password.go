@@ -5,10 +5,13 @@
 package password
 
 import (
-	//"appengine"
+	"appengine"
 	"code.google.com/p/go.crypto/bcrypt"
 	"errors"
-	//"github.com/scotch/hal/email"
+	"github.com/scotch/hal/auth/profile"
+	"github.com/scotch/hal/email"
+	"github.com/scotch/hal/person"
+	"github.com/scotch/hal/user"
 )
 
 const (
@@ -23,14 +26,10 @@ var (
 )
 
 type Password struct {
-	// New: the new password.
-	New string `json:"new,omitempty"`
-
-	// Current: The current password.
+	New     string `json:"new,omitempty"`
 	Current string `json:"current,omitempty"`
-
-	// IsSet: Indictor that the User has created a password.
-	IsSet bool `json:"isSet"`
+	IsSet   bool   `json:"isSet"`
+	Email   string `json:"email"`
 }
 
 // validatePasswordLength returns true if the supplied string is
@@ -70,38 +69,92 @@ func CompareHashAndPassword(hash, password []byte) error {
 	return nil
 }
 
-// func ChangePassword(c appengine.Context,
-// 	emailAddress, currentPassword, newPassword string) (err error) {
-// 
-// 	// Confirm the address is a valid email.
-// 	err = email.Validate(emailAddress)
-// 	if err != nil {
-// 		return
-// 	}
-// 	// Get the UserID.
-// 	// TODO(kylefinley) add status check confirm that the email has been
-// 	// confirmed.
-// 	e, err := email.Get(c, emailAddress)
-// 	if err != nil {
-// 		return
-// 	}
-// 	u, err := Get(c, e.UserID)
-// 	if err != nil {
-// 		return
-// 	}
-// 	// Compare pasword
-// 	if err = pass.CompareHashAndPassword(u.Password,
-// 		[]byte(currentPassword)); err != nil {
-// 		return
-// 	}
-// 	// Set password hash to new value
-// 	err = u.setPassword(newPassword)
-// 	if err != nil {
-// 		return
-// 	}
-// 	err = u.Put(c)
-// 	if err != nil {
-// 		return
-// 	}
-// 	return
-// }
+func validate(e string, p *Password) (err error) {
+	// Validate pasword
+	if err = p.Validate(); err != nil {
+		return
+	}
+	// Validate email
+	if err = email.Validate(e); err != nil {
+		return
+	}
+	return
+}
+
+func authenticate(c appengine.Context, pass *Password, pers *person.Person, userID string) (
+	pf *profile.Profile, err error) {
+
+	if pass.New != "" && pass.Current != "" {
+		pf, err = update(c, pass.Current, pass.New, userID, pers)
+		return
+	}
+	if pass.New != "" {
+		// if we have a user ID check for a profile
+		if userID != "" {
+			if pf, err = login(c, pass.New, userID); err == ErrProfileNotFound {
+				pf, err = create(c, pass.New, pers, userID)
+				return
+			}
+			if err != nil {
+				return
+			}
+		}
+		pf, err = create(c, pass.New, pers, "")
+		return
+	}
+	if pass.Current != "" {
+		pf, err = login(c, pass.Current, userID)
+		return
+	}
+	return pf, nil
+}
+
+func create(c appengine.Context, pass string, pers *person.Person, userID string) (
+	pf *profile.Profile, err error) {
+
+	var id string
+	if userID == "" {
+		u := user.New()
+		u.SetKey(c)
+		if err = u.Put(c); err != nil {
+			return
+		}
+		id = u.Key.StringID()
+	} else {
+		id = userID
+	}
+	pf = profile.New("Password", "")
+	pf.ID = id
+	pf.UserID = id
+	pf.Auth, _ = GenerateFromPassword([]byte(pass))
+	pf.Person = pers
+	return
+}
+
+func login(c appengine.Context, pass string, userID string) (
+	pf *profile.Profile, err error) {
+
+	if userID == "" {
+		return nil, ErrProfileNotFound
+	}
+	pf = profile.New("Password", "")
+	pid := profile.GenAuthID("Password", userID)
+	if err = profile.Get(c, pid, pf); err != nil {
+		return nil, ErrProfileNotFound
+	}
+	if err := CompareHashAndPassword(pf.Auth, []byte(pass)); err != nil {
+		return nil, err
+	}
+	return pf, nil
+}
+
+func update(c appengine.Context, passCurrent, passNew string, userID string, pers *person.Person) (
+	pf *profile.Profile, err error) {
+
+	if pf, err = login(c, passCurrent, userID); err != nil {
+		return
+	}
+	pf.Auth, _ = GenerateFromPassword([]byte(passNew))
+	pf.Person = pers
+	return pf, nil
+}

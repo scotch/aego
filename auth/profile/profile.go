@@ -155,7 +155,7 @@ func (p *Profile) UpdateUser(w http.ResponseWriter, r *http.Request) (u *user.Us
 
 	c := context.NewContext(r)
 	if p.Key == nil {
-		if p.ProviderName == "" && p.ProviderURL == "" {
+		if p.ProviderName == "" && p.ID == "" {
 			return nil, errors.New("auth: key not set")
 		}
 		p.SetKey(c)
@@ -180,38 +180,46 @@ func (p *Profile) UpdateUser(w http.ResponseWriter, r *http.Request) (u *user.Us
 			// TODO: User merge
 		}
 	}
+
 	// If we still don't have a UserID create a new user
 	if p.UserID == "" {
 		// Create User
 		u = user.New()
 		// Allocation an new ID
 		if err = u.SetKey(c); err != nil {
-			return u, err
+			return nil, err
 		}
 		saveUser = true
 	} else {
 		if u, err = user.Get(c, p.UserID); err != nil {
 			// if user is not found we have some type of syncing problem.
 			c.Criticalf(`auth: userID: %v was saved to Profile / Session, but was not found in the datastore`, p.UserID)
-			return
+			return nil, err
 		}
 	}
 	// Add AuthID
-	if u.AddAuthID(p.Key.StringID()) {
+	if err = u.AddAuthID(p.Key.StringID()); err == nil {
 		saveUser = true
+	}
+	if p.Person.Email != "" {
+		if _, err := u.AddEmail(c, p.Person.Email, 0); err == nil {
+			saveUser = true
+		}
 	}
 	// If current user is an admin in GAE add role to User
 	if aeuser.IsAdmin(c) {
 		// Save the roll to the session
 		_ = user.CurrentUserSetRole(w, r, "admin", true)
 		// Add the role to the user's roles.
-		if u.AddRole("admin") {
+		if err = u.AddRole("admin"); err == nil {
 			saveUser = true
 		}
 	}
 	if saveUser {
-		err = u.Put(c)
+		if err = u.Put(c); err != nil {
+			return nil, err
+		}
 	}
 	p.UserID = u.Key.StringID()
-	return
+	return u, nil
 }

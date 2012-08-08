@@ -38,7 +38,6 @@ import (
 	"errors"
 	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/email"
 	"github.com/scotch/hal/person"
 	"github.com/scotch/hal/user"
 	"net/http"
@@ -66,80 +65,6 @@ func decodePerson(r *http.Request) *person.Person {
 	return p
 }
 
-func authenticate(w http.ResponseWriter, r *http.Request,
-	pf *profile.Profile, pass *Password, pers *person.Person, userID string) (err error) {
-
-	c := context.NewContext(r)
-	//var userID string
-	var e *email.Email
-	var passHash []byte
-	var hasProfile bool
-
-	// Validate
-
-	// Validate pasword
-	if err := pass.Validate(); err != nil {
-		return err
-	}
-	// Validate email
-	if err := email.Validate(pers.Email); err != nil {
-		return err
-	}
-
-	// Search for existing account
-
-	// Search for Session
-	// Search Email
-	if e, err = email.Get(c, pers.Email); err == nil {
-		if e.UserID != "" {
-			if e.UserID != userID {
-				// TODO handle user account merge.
-			}
-			// Set the useID to the UserID stored in the saved Email
-			userID = e.UserID
-		}
-	}
-	// Search for Profile
-	if userID != "" {
-		pid := profile.GenAuthID("Password", userID)
-		if err = profile.Get(c, pid, pf); err == nil {
-			hasProfile = true
-		}
-	}
-	// Update or Login
-	if pass.Current != "" {
-		if !hasProfile {
-			return ErrProfileNotFound
-		}
-		// Check
-		if err := CompareHashAndPassword(pf.Auth, []byte(pass.Current)); err != nil {
-			return err
-		}
-	}
-	// Update or Create
-	if pass.New != "" {
-		// If there is an existing profile, check the password
-		if hasProfile && pass.Current == "" {
-			if err := CompareHashAndPassword(pf.Auth, []byte(pass.New)); err != nil {
-				return err
-			}
-		} else {
-			passHash, err = GenerateFromPassword([]byte(pass.New))
-			pf.Auth = passHash
-		}
-		pf.ID = e.Address
-		if userID != "" {
-			pf.UserID = userID
-		}
-		pf.Person = pers
-	}
-	if pf.UserID == "" {
-		pf.UserID, _ = user.AllocateID(c)
-	}
-	pf.ID = pf.UserID
-	return
-}
-
 // Authenticate process the request and returns a populated Profile.
 // If the Authenticate method can not authenticate the User based on the
 // request, an error or a redirect URL wll be return.
@@ -152,99 +77,14 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
 	pass := &Password{
 		New:     r.FormValue("Password.New"),
 		Current: r.FormValue("Password.Current"),
+		Email:   r.FormValue("Email"),
 	}
+	if err = pass.Validate(); err != nil {
+		return nil, "", err
+	}
+	c := context.NewContext(r)
+	userID, _ := user.CurrentUserIDByEmail(r, pass.Email)
 	pers := decodePerson(r)
-	userID, _ := user.CurrentUserID(r)
-	err = authenticate(w, r, pf, pass, pers, userID)
+	pf, err = authenticate(c, pass, pers, userID)
 	return pf, "", err
 }
-
-// func validate(e *email.Email, p *Password) error {
-// 	// Validate pasword
-// 	if err := p.Validate(); err != nil {
-// 		return err
-// 	}
-// 	// Validate email
-// 	if err := email.Validate(pers.Email); err != nil {
-// 		return err
-// 	}
-// 	return
-// }
-// 
-// func getUserID(w http.ResponseWriter, r *http.Request, emailAddress *email.Email) (id string) {
-// 	// TODO: User merge if the session UserID is different then the email UserID
-// 	// search session
-// 	sessID, _ := user.CurrentUserID(r)
-// 	if sessID != "" {
-// 		return sessID
-// 	}
-// 	// search by email
-// 	c := context.NewContext(r)
-// 	e, err := email.Get(c, emailAddress)
-// 	if err != nil {
-// 		return ""
-// 	}
-// }
-// 
-// func create(w http.ResponseWriter, r *http.Request,
-// 	pf *profile.Profile, pass *Password, pers *person.Person, userID string) (err error) {
-// 
-// 	c := context.NewContext(r)
-// 	if err = validate(pers.Email, pass); err != nil {
-// 		return err
-// 	}
-// 	userID := getUserID(w, r, pers.Email)
-// 	// if we have a user ID check for a profile
-// 	if userID != "" {
-// 		pid := profile.GenAuthID("Password", userID)
-// 		if err = profile.Get(c, pid, pf); err == nil {
-// 			hasProfile = true
-// 		}
-// 	}
-// 	userID, _ = user.AllocateID(c)
-// 	passHash, _ := GenerateFromPassword([]byte(pass.New))
-// 
-// 	pf.ID = userID
-// 	pf.UserID = userID
-// 	pf.Auth = passHash
-// 	pf.Person = pers
-// 
-// 	return
-// }
-// 
-// func login(w http.ResponseWriter, r *http.Request,
-// 	pf *profile.Profile, pass *Password, pers *person.Person, userID string) (err error) {
-// 
-// 	c := context.NewContext(r)
-// 	if err = validate(pers.Email, pass); err != nil {
-// 		return err
-// 	}
-// 	userID := getUserID(w, r, pers.Email)
-// 	// if we have a user ID check for a profile
-// 	if userID == "" {
-// 		return ErrProfileNotFound
-// 	}
-// 	pid := profile.GenAuthID("Password", userID)
-// 	if err = profile.Get(c, pid, pf); err != nil {
-// 		return ErrProfileNotFound
-// 	}
-// 	if err := CompareHashAndPassword(pf.Auth, []byte(pass.Current)); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// 	userID, _ = user.AllocateID(c)
-// 	passHash, _ := GenerateFromPassword([]byte(pass.New))
-// 
-// 	pf.ID = userID
-// 	pf.UserID = userID
-// 	pf.Auth = passHash
-// 	pf.Person = pers
-// 
-// 	if !hasProfile {
-// 		return ErrProfileNotFound
-// 	}
-// 	// Check
-// 	if err := CompareHashAndPassword(pf.Auth, []byte(pass.Current)); err != nil {
-// 		return err
-// 	}
-// }

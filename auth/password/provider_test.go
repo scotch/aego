@@ -169,15 +169,8 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 	v.Set("Password.Current", "fakepass")
 	r = createRequest(v)
 	// Check.
-	pf, uRL, err = pro.Authenticate(w, r)
-	if err != ErrPasswordMismatch {
+	if _, _, err = pro.Authenticate(w, r); err != ErrPasswordMismatch {
 		t.Errorf(`err: %v, want: %v`, err, ErrPasswordMismatch)
-	}
-	if x := pf.Person.Name.GivenName; x != "Barack" {
-		t.Errorf(`.Person should not be updated on in-correct password`)
-	}
-	if x := pf.UserID; x != "1" {
-		t.Errorf(`pf.UserID: %v, want %v`, x, "1")
 	}
 	// 2. Update
 	// a. Correct password.
@@ -193,7 +186,7 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 		t.Errorf(`err: %v, want: %v`, err, nil)
 	}
 	if x := pf.Person.Name.GivenName; x != "Berry" {
-		t.Errorf(`.Person should be updated on update`)
+		t.Errorf(`pf.Person should be updated on update`)
 	}
 	if x := pf.UserID; x != "1" {
 		t.Errorf(`pf.UserID: %v, want %v`, x, "1")
@@ -209,12 +202,8 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 	v.Set("Name.GivenName", "Bob")
 	r = createRequest(v)
 	// Check.
-	pf, uRL, err = pro.Authenticate(w, r)
-	if err != ErrPasswordMismatch {
+	if _, _, err = pro.Authenticate(w, r); err != ErrPasswordMismatch {
 		t.Errorf(`err: %v, want: %v`, err, ErrPasswordMismatch)
-	}
-	if x := pf.Person.Name.GivenName; x == "Bob" {
-		t.Errorf(`.Person should not be updated on in-correct password`)
 	}
 	// 2. Create - Should login user
 	// a. Correct password.
@@ -244,12 +233,8 @@ func TestAuthenticate_Scenario2(t *testing.T) {
 	v.Set("Name.GivenName", "Bob2")
 	r = createRequest(v)
 	// Check.
-	pf, uRL, err = pro.Authenticate(w, r)
-	if err != ErrPasswordMismatch {
+	if _, _, err = pro.Authenticate(w, r); err != ErrPasswordMismatch {
 		t.Errorf(`err: %v, want: %v`, err, ErrPasswordMismatch)
-	}
-	if x := pf.Person.Name.GivenName; x == "Bob2" {
-		t.Errorf(`.Person should not be updated on in-correct password`)
 	}
 }
 
@@ -284,7 +269,7 @@ func TestAuthenticate_Scenario3(t *testing.T) {
 		t.Errorf(`err: %v, want: %v`, err, nil)
 	}
 	if x := pf.Person.Name.GivenName; x != "Bob" {
-		t.Errorf(`.Person should be updated`)
+		t.Errorf(`pf.Person should be updated`)
 	}
 	if x := pf.UserID; x != "1001" {
 		t.Errorf(`pf.UserID: %v, want %v`, x, "1001")

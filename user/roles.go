@@ -6,22 +6,23 @@ package user
 
 import (
 	"appengine"
+	"errors"
 	"github.com/scotch/hal/session"
 	"net/http"
 )
 
-// AddRole appends the role to the User's Roles. Returns true if role
-// was added.
-// TODO does this make sense? Should it instead return true if the role
-// was present. Or should this method be removed?
-func (u *User) AddRole(role string) bool {
-	for _, r := range u.Roles {
-		if r == role {
-			return false
-		}
+var (
+	ErrRoleAlreadyAdded = errors.New("user: role already added")
+)
+
+// AddRole appends the role to the User's Roles. Returns an error if the role
+// was already present.
+func (u *User) AddRole(role string) error {
+	if u.HasRole(role) {
+		return ErrRoleAlreadyAdded
 	}
 	u.Roles = append(u.Roles, role)
-	return true
+	return nil
 }
 
 // HasRole returns true if the user has the role.

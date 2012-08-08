@@ -4,14 +4,30 @@
 
 package user
 
-// AddAuthID Adds an AuthID to the User's AuthIDs list. It returns true
-// if this is a new authID
-func (u *User) AddAuthID(authID string) bool {
-	for _, id := range u.AuthIDs {
-		if id == authID {
-			return false
-		}
+import (
+	"errors"
+)
+
+var (
+	ErrAuthIDAlreadyAdded = errors.New("user: AuthID already added")
+)
+
+// AddAuthID appends the role to the User's Roles. Returns an error if the authID
+// was already added.
+func (u *User) AddAuthID(authID string) error {
+	if u.HasAuthID(authID) {
+		return ErrAuthIDAlreadyAdded
 	}
 	u.AuthIDs = append(u.AuthIDs, authID)
-	return true
+	return nil
+}
+
+// HasAuthID returns true if the user has the authID.
+func (u *User) HasAuthID(authID string) bool {
+	for _, a := range u.AuthIDs {
+		if a == authID {
+			return true
+		}
+	}
+	return false
 }

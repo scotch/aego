@@ -21,7 +21,7 @@ func TestNewKey(t *testing.T) {
 	defer tearDown()
 
 	k1 := datastore.NewKey(c, "AuthProfile", "google|12345", 0, nil)
-	k2 := NewKey(c, "Google", "12345")
+	k2 := newKey(c, "Google", "12345")
 	if k1.String() != k2.String() {
 		t.Errorf("k2: %q, want %q.", k2, k1)
 		t.Errorf("k1:", k1)
@@ -35,17 +35,15 @@ func TestGet(t *testing.T) {
 
 	// Save it.
 
-	u := New()
+	u := New("Google", "http://plus.google.com")
 	u.ID = "12345"
-	u.Provider = "Google"
-	u.ProviderURL = "http://plus.google.com"
 	u.Person = &person.Person{
 		Name: &person.PersonName{
 			GivenName:  "Barack",
 			FamilyName: "Obama",
 		},
 	}
-	key := NewKey(c, "google", "12345")
+	key := newKey(c, "google", "12345")
 	u.Key = key
 	err := u.Put(c)
 	if err != nil {

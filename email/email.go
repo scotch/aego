@@ -13,7 +13,11 @@ import (
 	"time"
 )
 
-var ErrInvalidAddress = errors.New("email: invalid address")
+var (
+	ErrInvalidAddress      = errors.New("email: invalid address")
+	ErrAddressInUse        = errors.New("email: address in use by another user")
+	ErrAddressAlreadyAdded = errors.New("email: address has already been added")
+)
 
 // Validate returns an ErrInvalidEmail if the supplied
 // string does not contains an "@" and a ".".
@@ -77,26 +81,22 @@ func Get(c appengine.Context, address string) (*Email, error) {
 	return e, err
 }
 
-// func CreateOrUpdate(c appengine.Context, userkey *datastore.Key,
-// 	email string) (*datastore.Key, error) {
-// 
-// 	key := datastore.NewKey(c, "Email", email, 0, nil)
-// 	err := datastore.RunInTransaction(c, func(c appengine.Context) error {
-// 		e := new(Email)
-// 		err := datastore.Get(c, key, e)
-// 		// If an email dosen't exist, create it.
-// 		if err == datastore.ErrNoSuchEntity {
-// 			e.UserKey = userkey
-// 			if _, err := datastore.Put(c, key, e); err != nil {
-// 				return err
-// 			}
-// 			return nil
-// 		}
-// 		if err != nil {
-// 			c.Errorf("Email CreateOrUpdate err: %v", err)
-// 			return err
-// 		}
-// 		return nil
-// 	}, nil)
-// 	return key, err
-// }
+func AddForUser(c appengine.Context, address, userID string, status int64) (e *Email, err error) {
+
+	err = datastore.RunInTransaction(c, func(c appengine.Context) error {
+		e, err = Get(c, address)
+		if e.UserID != "" {
+			if e.UserID != userID {
+				return ErrAddressInUse
+			}
+			return ErrAddressAlreadyAdded
+		}
+		e = New()
+		e.SetKey(c, address)
+		e.UserID = userID
+		e.Status = status
+		return e.Put(c)
+	}, nil)
+
+	return e, err
+}

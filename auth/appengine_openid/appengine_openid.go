@@ -53,6 +53,7 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
 	}
 
 	per := new(person.Person)
+	per.Email = u.Email
 	per.Emails = []*person.PersonEmails{
 		&person.PersonEmails{true, "home", u.Email},
 	}

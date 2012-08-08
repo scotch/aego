@@ -5,10 +5,8 @@
 package password
 
 import (
-	//"github.com/scotch/hal/api/code"
-	"appengine"
 	"github.com/scotch/hal/auth"
-	"github.com/scotch/hal/auth/profile"
+	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/person"
 	"github.com/scotch/hal/user"
 	"net/http"
@@ -28,16 +26,18 @@ type Reply struct {
 func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request,
 	args *Args, reply *Reply) (err error) {
 
-	c := appengine.NewContext(r)
-	c.Errorf(`args: %v`, args)
-	userID, _ := user.CurrentUserID(r)
-	pf := profile.New("Password", r.URL.Host)
-	err = authenticate(w, r, pf, args.Password, args.Person, userID)
+	if err = args.Password.Validate(); err != nil {
+		return err
+	}
+	c := context.NewContext(r)
+	userID, _ := user.CurrentUserIDByEmail(r, args.Password.Email)
+	pf, err := authenticate(c, args.Password, args.Person, userID)
+	if err != nil {
+		return err
+	}
 	if _, err = auth.CreateAndLogin(w, r, pf); err != nil {
 		return err
 	}
 	reply.Person = pf.Person
-	c.Errorf(`err: %v`, err)
-	c.Errorf(`pf: %v`, pf)
-	return err
+	return nil
 }

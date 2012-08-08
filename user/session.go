@@ -10,6 +10,7 @@ import (
 	"errors"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/ds"
+	"github.com/scotch/hal/email"
 	"github.com/scotch/hal/session"
 	"net/http"
 )
@@ -26,6 +27,26 @@ func CurrentUserID(r *http.Request) (string, error) {
 	}
 	id, _ := s.Values["userid"].(string)
 	return id, err
+}
+
+// CurrentUserIDByEmail returns the userId of the requesting user. Or the userID
+// associated with the provided email.
+func CurrentUserIDByEmail(r *http.Request, emailAddress string) (string, error) {
+	// TODO: User merge if the session UserID is different then the email UserID
+	// search session
+	sessID, _ := CurrentUserID(r)
+	if sessID != "" {
+		// TODO: maybe confirm that the UserID exists?
+		// There are case where the session may have an incorrect UserID.
+		return sessID, nil
+	}
+	// search by email
+	c := context.NewContext(r)
+	e, err := email.Get(c, emailAddress)
+	if err != nil {
+		return "", err
+	}
+	return e.UserID, nil
 }
 
 // CurrentUserSetID adds the provided userId to the current users session/cookie
