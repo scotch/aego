@@ -135,6 +135,32 @@ func Get(c appengine.Context, id string, up *Profile) (err error) {
 	return
 }
 
+func GetMulti(c appengine.Context, ids []string) (pfs []*Profile, err error) {
+	key := make([]*datastore.Key, len(ids))
+	for k, id := range ids {
+		key[k] = datastore.NewKey(c, "AuthProfile", id, 0, nil)
+	}
+	pfs = make([]*Profile, len(ids))
+	for i := range pfs {
+		pfs[i] = new(Profile)
+	}
+	err = ds.GetMulti(c, key, pfs)
+	for i := range pfs {
+		pfs[i].Key = key[i]
+		pfs[i].Decode()
+	}
+	return
+}
+
+func GetPersonMulti(c appengine.Context, ids []string) (pers []*person.Person, err error) {
+	pfs, err := GetMulti(c, ids)
+	pers = make([]*person.Person, len(pfs))
+	for i, pf := range pfs {
+		pers[i] = pf.Person
+	}
+	return
+}
+
 // Put is a convience method to save the Profile to the datastore and
 // updated the Updated property to time.Now().
 func (u *Profile) Put(c appengine.Context) error {
