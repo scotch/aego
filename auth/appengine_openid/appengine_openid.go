@@ -20,7 +20,7 @@ type Provider struct {
 func New() *Provider {
 	return &Provider{
 		"AppEngineOpenID",
-		"http://appengine.google.com",
+		"appengine.google.com",
 	}
 }
 
@@ -28,19 +28,19 @@ func New() *Provider {
 // If the Authenticate method can not authenticate the User based on the
 // request, an error or a redirect URL wll be return.
 func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
-	up *profile.Profile, url string, err error) {
+	up *profile.Profile, redirectURL string, err error) {
 
 	c := context.NewContext(r)
 
+	url := r.FormValue("provider")
 	// Set provider info.
-	up = profile.New(p.Name, p.URL)
+	up = profile.New(p.Name, url)
 
 	// Check for current User.
 
 	u := aeuser.Current(c)
 
 	if u == nil {
-		url := r.FormValue("provider")
 		redirectURL := r.URL.Path + "/callback"
 		loginUrl, err := aeuser.LoginURLFederated(c, redirectURL, url)
 		return up, loginUrl, err
