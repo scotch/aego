@@ -79,9 +79,6 @@ func (p *Provider) Authenticate(w http.ResponseWriter, r *http.Request) (
 		Current: r.FormValue("Password.Current"),
 		Email:   r.FormValue("Email"),
 	}
-	if err = pass.Validate(); err != nil {
-		return nil, "", err
-	}
 	c := context.NewContext(r)
 	userID, _ := user.CurrentUserIDByEmail(r, pass.Email)
 	pers := decodePerson(r)

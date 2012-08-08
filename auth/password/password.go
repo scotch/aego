@@ -45,6 +45,7 @@ func Validate(p string) error {
 }
 
 func (p *Password) Validate() (err error) {
+	// Validate pasword
 	if p.New != "" {
 		if err = Validate(p.New); err != nil {
 			return
@@ -54,6 +55,10 @@ func (p *Password) Validate() (err error) {
 		if err = Validate(p.Current); err != nil {
 			return
 		}
+	}
+	// Validate email
+	if err = email.Validate(p.Email); err != nil {
+		return
 	}
 	return
 }
@@ -69,21 +74,12 @@ func CompareHashAndPassword(hash, password []byte) error {
 	return nil
 }
 
-func validate(e string, p *Password) (err error) {
-	// Validate pasword
-	if err = p.Validate(); err != nil {
-		return
-	}
-	// Validate email
-	if err = email.Validate(e); err != nil {
-		return
-	}
-	return
-}
-
 func authenticate(c appengine.Context, pass *Password, pers *person.Person, userID string) (
 	pf *profile.Profile, err error) {
 
+	if err = pass.Validate(); err != nil {
+		return nil, err
+	}
 	if pass.New != "" && pass.Current != "" {
 		pf, err = update(c, pass.Current, pass.New, userID, pers)
 		return

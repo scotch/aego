@@ -26,9 +26,6 @@ type Reply struct {
 func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request,
 	args *Args, reply *Reply) (err error) {
 
-	if err = args.Password.Validate(); err != nil {
-		return err
-	}
 	c := context.NewContext(r)
 	userID, _ := user.CurrentUserIDByEmail(r, args.Password.Email)
 	pf, err := authenticate(c, args.Password, args.Person, userID)
