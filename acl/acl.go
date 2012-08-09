@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package acl adds Access Control to entities
+Package hal/acl adds Access Control to entities
 */
 package acl
 

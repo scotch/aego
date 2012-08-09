@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package ds/memory provides instance memeory, i.e. RAM persistence.
+Package hal/ds/memory provides instance memeory, i.e. RAM persistence.
 
 Entites are stored in a map using the datastore.Key.Encode() as the key
 with the stuct encoded using encoding/gob.

@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package auth/oauth2 provides OAuth2 authentication
+Package hal/auth/oauth2 provides OAuth2 authentication
 */
 package oauth2
 

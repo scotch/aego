@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package auth/dev provides a developement strategy for testing.
+Package hal/auth/dev provides a developement strategy for testing.
 */
 package dev
 

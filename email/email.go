@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package email provides methods surronding:
+Package hal/email provides methods surronding:
 
 - Email storage
 - User lookup by email address

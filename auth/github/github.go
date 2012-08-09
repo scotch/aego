@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package auth/github provides Github authentication
+Package hal/auth/github provides Github authentication
 */
 package github
 

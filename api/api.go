@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package api provides rpc service for hal.
+Package hal/api provides rpc service for hal.
 */
 package api
 

@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package auth/facebook provides Facebook authentication
+Package hal/auth/facebook provides Facebook authentication
 */
 package facebook
 

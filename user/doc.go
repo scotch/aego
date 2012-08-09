@@ -1,5 +1,5 @@
 /*
-Package user provides a standard User model for use with application
+Package hal/user provides a standard User model for use with application
 
 */
 package user

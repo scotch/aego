@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package auth/password provides a password strategy using bcrypt.
+Package hal/auth/password provides a password strategy using bcrypt.
 
 auth/password stategy takes a POST with the following keys:
 

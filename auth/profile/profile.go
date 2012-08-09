@@ -6,7 +6,7 @@
 // license: Apache Software License, see LICENSE for details.
 
 /*
-Package auth/profile provides the auth.Profile for starage of
+Package hal/auth/profile provides the auth.Profile for starage of
 authentication strategies.
 */
 package profile

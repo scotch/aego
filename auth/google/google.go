@@ -6,7 +6,7 @@
 // license: Apache Software License, see LICENSE for details.
 
 /*
-Package auth/google provides Google authentication
+Package hal/auth/google provides Google authentication
 */
 package google
 

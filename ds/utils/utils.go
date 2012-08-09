@@ -6,6 +6,24 @@
 // Use of this source code is governed by the Apache 2.0
 // license that can be found in the LICENSE file.
 
+/*
+Package hal/ds/utils provides utilites for ds
+
+Example Usage:
+
+  import (
+    "github.com/scotch/hal/auth"
+    "github.com/scotch/hal/auth/google"
+  )
+
+  // Register the Google Provider.
+  googleProvider := google.Provider.New("12345", "ABCD")
+  Register("google", &googleProvider)
+  // Register additional providers.
+  // ...
+
+
+*/
 package utils
 
 import (

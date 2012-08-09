@@ -7,7 +7,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package ds/errors provides ds errors and MultiErrors. Ideally this package
+Package hal/ds/errors provides ds errors and MultiErrors. Ideally this package
 would be located in ds but a circular import error prevents that.
 */
 package errors

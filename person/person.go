@@ -7,7 +7,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package person provides a Person structs it was orginally modeled after a Google+ Person
+Package hal/person provides a Person structs it was orginally modeled after a Google+ Person
 */
 package person
 

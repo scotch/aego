@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package auth/appengine_openid provides authentication through 
+Package hal/auth/appengine_openid provides authentication through 
 Google App Engine OpenID
 */
 package appengine_openid
