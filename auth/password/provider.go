@@ -16,16 +16,19 @@ Name.FamilyName
 
 Based on the supplied attributes auth/password will do one of three things:
 
-1. Create new User and log them in. POST:
+1. To Create new User and log them in. POST:
+  - "Email"
   - "Password.New" (present)
   - "Password.Current" (NOT present)
   - + Person attributes, E.g. "Name.GivenName", "Name.FamilyName"
 
-2. Login User or return error if password does not match. POST:
+2. To Login User or return error if password does not match. POST:
+  - "Email"
   - "Password.Current" (present)
   - "Password.New" (NOT present)
 
-3. Update Password / Person details. POST:
+3. To Update Password / Person details. POST:
+  - "Email"
   - "Password.New" (present)
   - "Password.Current" (present)
   - + Person attributes, E.g. "Name.GivenName", "Name.FamilyName"
