@@ -5,6 +5,9 @@
 // Copyright: 2011 Google Inc. All Rights Reserved.
 // license: Apache Software License, see LICENSE for details.
 
+/*
+Package auth/google provides Google authentication
+*/
 package google
 
 import (

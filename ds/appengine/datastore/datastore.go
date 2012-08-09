@@ -3,10 +3,9 @@
 // license that can be found in the LICENSE file.
 
 /*
-datastore: Stores the entity in App Engine datstore.
+Package ds/appengine/datastore provides App Engine datastore persistence.
 
 This package is a wrapper for the appengine/datastore package.
-
 */
 package datastore
 

@@ -7,9 +7,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-hal/person provides structs representing various things. The objective of
-this package is to standardize the discription of things that are commonly
-used in web applications,
+Package person provides a Person structs it was orginally modeled after a Google+ Person
 */
 package person
 

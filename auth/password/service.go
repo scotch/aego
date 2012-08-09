@@ -20,12 +20,8 @@ type Args struct {
 	Person   *person.Person
 }
 
-type Reply struct {
-	Person *person.Person
-}
-
 func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request,
-	args *Args, reply *Reply) (err error) {
+	args *Args, reply *Args) (err error) {
 
 	c := context.NewContext(r)
 	userID, _ := user.CurrentUserIDByEmail(r, args.Password.Email)
@@ -40,7 +36,7 @@ func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request,
 	return nil
 }
 
-func (s *Service) IsSet(w http.ResponseWriter, r *http.Request,
+func (s *Service) Status(w http.ResponseWriter, r *http.Request,
 	args *Args, reply *Args) (err error) {
 
 	c := context.NewContext(r)

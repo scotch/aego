@@ -2,6 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+/*
+Package email provides methods surronding:
+
+- Email storage
+- User lookup by email address
+- Email addess validation
+- Email address verification
+*/
 package email
 
 import (

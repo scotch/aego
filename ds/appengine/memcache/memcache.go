@@ -3,11 +3,10 @@
 // license that can be found in the LICENSE file.
 
 /*
-memcache: Stores the entity in App Engine memcache.
+Package ds/appengine/memcache provides App Engine memcache persistence.
 
 Entites are stored using the datastore.Key.Encode() as the key
 with the stuct encoded using encoding/gob.
-
 */
 package memcache
 

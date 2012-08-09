@@ -5,7 +5,6 @@
 /*
 Package api provides rpc service for hal.
 */
-
 package api
 
 import (

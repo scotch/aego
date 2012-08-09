@@ -5,6 +5,10 @@
 // Copyright: 2011 Google Inc. All Rights Reserved.
 // license: Apache Software License, see LICENSE for details.
 
+/*
+Package auth/profile provides the auth.Profile for starage of
+authentication strategies.
+*/
 package profile
 
 import (
