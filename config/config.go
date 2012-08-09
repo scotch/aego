@@ -33,7 +33,6 @@ Edit and save the config
   appTitle := appConfig2.Values["Title"] // "Changed"
 
 */
-
 package config
 
 // TODO(kylefinley) move the JSON encoding of invalid datastore types
