@@ -6,6 +6,7 @@ package password
 
 import (
 	"github.com/scotch/hal/auth"
+	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/person"
 	"github.com/scotch/hal/user"
@@ -36,5 +37,20 @@ func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request,
 		return err
 	}
 	reply.Person = pf.Person
+	return nil
+}
+
+func (s *Service) IsSet(w http.ResponseWriter, r *http.Request,
+	args *Args, reply *Args) (err error) {
+
+	c := context.NewContext(r)
+	var isSet bool
+	userID, _ := user.CurrentUserID(r)
+	p := new(profile.Profile)
+	err = profile.Get(c, profile.GenAuthID("Password", userID), p)
+	if err == nil {
+		isSet = true
+	}
+	reply.Password = &Password{IsSet: isSet}
 	return nil
 }
