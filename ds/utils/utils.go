@@ -8,21 +8,6 @@
 
 /*
 Package hal/ds/utils provides utilites for ds
-
-Example Usage:
-
-  import (
-    "github.com/scotch/hal/auth"
-    "github.com/scotch/hal/auth/google"
-  )
-
-  // Register the Google Provider.
-  googleProvider := google.Provider.New("12345", "ABCD")
-  Register("google", &googleProvider)
-  // Register additional providers.
-  // ...
-
-
 */
 package utils
 
