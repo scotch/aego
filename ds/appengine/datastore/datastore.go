@@ -8,7 +8,6 @@ datastore: Stores the entity in App Engine datstore.
 This package is a wrapper for the appengine/datastore package.
 
 */
-
 package datastore
 
 import (

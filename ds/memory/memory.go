@@ -12,7 +12,6 @@ TODO(kylefinley) Add a method for expiring entites. Old entities should
 also be removed when spaces is limited.
 
 */
-
 package memory
 
 import (

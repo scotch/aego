@@ -6,6 +6,7 @@
 Package hal/ds provides cached presistence for the Google App Engine datastore.
 
 */
+package ds
 
 // TODO(kylefinley) Ideally this package would allow for a more modular approach.
 // The API would look more like this:
@@ -26,8 +27,6 @@ Package hal/ds provides cached presistence for the Google App Engine datastore.
 // }
 // Would encode T.A to gob
 // Or maybe this should be handled by ds/datastore.
-
-package ds
 
 import (
 	"appengine"

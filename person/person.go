@@ -11,7 +11,6 @@ hal/person provides structs representing various things. The objective of
 this package is to standardize the discription of things that are commonly
 used in web applications,
 */
-
 package person
 
 import ()

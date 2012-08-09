@@ -9,7 +9,6 @@ Entites are stored using the datastore.Key.Encode() as the key
 with the stuct encoded using encoding/gob.
 
 */
-
 package memcache
 
 import (

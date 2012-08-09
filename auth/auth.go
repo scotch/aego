@@ -20,7 +20,6 @@ Example Usage:
 
 
 */
-
 package auth
 
 import (
