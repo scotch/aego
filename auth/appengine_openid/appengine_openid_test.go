@@ -7,7 +7,6 @@ package appengine_openid
 import (
 	"github.com/scotch/hal/auth"
 	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/user_profile"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -37,8 +36,7 @@ func TestAuthenticate(t *testing.T) {
 
 	// Process.
 
-	up := user_profile.New()
-	url, err := pro.Authenticate(w, req, up)
+	_, url, err := pro.Authenticate(w, req)
 
 	if url == "" {
 		exampleURL :=

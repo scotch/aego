@@ -127,7 +127,8 @@ func (u *Profile) Decode() error {
 }
 
 // Get is a convience method for retrieveing an entity from the ds.
-func Get(c appengine.Context, id string, up *Profile) (err error) {
+func Get(c appengine.Context, id string) (up *Profile, err error) {
+	up = &Profile{}
 	key := datastore.NewKey(c, "AuthProfile", id, 0, nil)
 	err = ds.Get(c, key, up)
 	up.Key = key
@@ -192,8 +193,7 @@ func (p *Profile) UpdateUser(w http.ResponseWriter, r *http.Request) (u *user.Us
 	// if the AuthProfile doesn't have a UserID look it up. And populate the
 	// UserID from the saved profile.
 	if p.UserID == "" {
-		p2 := &Profile{}
-		if err := Get(c, p.Key.StringID(), p2); err == nil {
+		if p2, err := Get(c, p.Key.StringID()); err == nil {
 			p.UserID = p2.UserID
 		}
 	}

@@ -46,8 +46,7 @@ func (s *Service) IsSet(w http.ResponseWriter, r *http.Request,
 	c := context.NewContext(r)
 	var isSet bool
 	userID, _ := user.CurrentUserID(r)
-	p := new(profile.Profile)
-	err = profile.Get(c, profile.GenAuthID("Password", userID), p)
+	_, err = profile.Get(c, profile.GenAuthID("Password", userID))
 	if err == nil {
 		isSet = true
 	}

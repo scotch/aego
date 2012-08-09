@@ -133,9 +133,8 @@ func login(c appengine.Context, pass string, userID string) (
 	if userID == "" {
 		return nil, ErrProfileNotFound
 	}
-	pf = profile.New("Password", "")
 	pid := profile.GenAuthID("Password", userID)
-	if err = profile.Get(c, pid, pf); err != nil {
+	if pf, err = profile.Get(c, pid); err != nil {
 		return nil, ErrProfileNotFound
 	}
 	if err := CompareHashAndPassword(pf.Auth, []byte(pass)); err != nil {

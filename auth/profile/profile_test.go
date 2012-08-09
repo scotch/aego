@@ -59,7 +59,7 @@ func TestGet(t *testing.T) {
 	if err != nil {
 		t.Errorf(`err: %q, want nil`, err)
 	}
-	err = Get(c, id, u2)
+	u2, err = Get(c, id)
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}

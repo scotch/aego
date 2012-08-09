@@ -224,8 +224,7 @@ func Test_CreateAndLogin(t *testing.T) {
 
 	// Confirm Profile.
 
-	rup := new(profile.Profile)
-	err = profile.Get(c, "example|1", rup)
+	rup, err := profile.Get(c, "example|1")
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
@@ -289,8 +288,7 @@ func Test_CreateAndLogin(t *testing.T) {
 
 	// Confirm Profile.
 
-	rup = new(profile.Profile)
-	err = profile.Get(c, "anotherexample|2", rup)
+	rup, err = profile.Get(c, "anotherexample|2")
 	if err != nil {
 		t.Errorf(`err: %v, want nil`, err)
 	}
