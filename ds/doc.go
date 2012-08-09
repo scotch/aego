@@ -44,3 +44,5 @@ Note: Currently casheing only occures with `Get`. `GetMulti` pulls from the data
 `HAL/ds` is a work in progress, but the code is well tested. Any feedback would be appreciated. 
 
 */
+
+package ds
