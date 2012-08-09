@@ -12,21 +12,21 @@ package context
 
 import (
 	"appengine"
-	"config"
+	//"config"
 	"net/http"
-	"sync"
+	//"sync"
 )
 
-var startOnce sync.Once
+//var startOnce sync.Once
 
 type Context appengine.Context
 
 // NewContext returns a new context for an in-flight HTTP request.
 func NewContext(req *http.Request) appengine.Context {
 
-	startOnce.Do(func() {
-		config.Start(req)
-	})
+	// startOnce.Do(func() {
+	// 	config.Start(req)
+	// })
 
 	return appengine.NewContext(req)
 }
