@@ -91,16 +91,6 @@ var (
 	memory   = dsmemory.New()
 )
 
-// Storer is not implemented yet.
-type Storer interface {
-	Get(appengine.Context, *datastore.Key, interface{}) error
-	GetMulti(appengine.Context, []*datastore.Key, interface{}) error
-	Put(appengine.Context, *datastore.Key, interface{}) (*datastore.Key, error)
-	PutMulti(appengine.Context, []*datastore.Key, interface{}) ([]*datastore.Key, error)
-	Delete(appengine.Context, *datastore.Key) error
-	DeleteMulti(appengine.Context, []*datastore.Key) error
-}
-
 // StoreConfig is used to establish the stores that should be used for an Entity.
 // A true value indicated that that store should be used. A false that that store
 // should not be used.
@@ -246,3 +236,13 @@ func AllocateID(c appengine.Context, kind string) (string, error) {
 	id, _, err := AllocateIDs(c, kind, nil, 1)
 	return fmt.Sprint(id), err
 }
+
+// Storer is not implemented yet.
+// type Storer interface {
+// 	Get(appengine.Context, *datastore.Key, interface{}) error
+// 	GetMulti(appengine.Context, []*datastore.Key, interface{}) error
+// 	Put(appengine.Context, *datastore.Key, interface{}) (*datastore.Key, error)
+// 	PutMulti(appengine.Context, []*datastore.Key, interface{}) ([]*datastore.Key, error)
+// 	Delete(appengine.Context, *datastore.Key) error
+// 	DeleteMulti(appengine.Context, []*datastore.Key) error
+// }
