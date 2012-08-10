@@ -17,6 +17,7 @@ import (
 	"appengine/datastore"
 	"errors"
 	"github.com/scotch/hal/ds"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -27,18 +28,12 @@ var (
 	ErrAddressAlreadyAdded = errors.New("email: address has already been added")
 )
 
+var emailRegexp *regexp.Regexp = regexp.MustCompile(`[a-zA-Z0-9\-+~_%]+[a-zA-Z0-9\-+~_%.]*@([a-z]+[a-z0-9\\-]*\.)+[a-z][a-z]+`)
+
 // Validate returns an ErrInvalidEmail if the supplied
 // string does not contains an "@" and a ".".
 func Validate(address string) error {
-
-	// TODO maybe use a regex here instead?
-	if len(address) < 5 {
-		return ErrInvalidAddress
-	}
-	if !strings.Contains(address, "@") {
-		return ErrInvalidAddress
-	}
-	if !strings.Contains(address, ".") {
+	if !emailRegexp.Match([]byte(strings.TrimSpace(address))) {
 		return ErrInvalidAddress
 	}
 	return nil
@@ -77,6 +72,7 @@ func (e *Email) SetKey(c appengine.Context, address string) {
 
 func (e *Email) Put(c appengine.Context) (err error) {
 	e.Updated = time.Now()
+	e.Address = strings.ToLower(e.Address)
 	e.Key, err = ds.Put(c, e.Key, e)
 	return
 }

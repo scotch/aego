@@ -8,14 +8,35 @@ import (
 	"testing"
 )
 
+var addressTests = []struct {
+	in  string
+	out error
+}{
+	{"name@example.com", nil},
+	{"name@x.y.z.example.co.uk", nil},
+	{"name@example.aero", nil},
+	{"x@example.com", nil},
+	{"first.last@example.com", nil},
+	{"first.middle.last@example.com", nil},
+	{"x+y@example.com", nil},
+	{"Name@example.com", nil},
+	{"NAme@x.y.z.example.co.uk", nil},
+	{"NAME@example.aero", nil},
+	{"X@example.com", nil},
+	{"First.Last@example.com", nil},
+	{"FIRST.middle.LAST@example.com", nil},
+	{"X+Y@example.com", nil},
+	{"name@.com", ErrInvalidAddress},
+	{"name@example.x", ErrInvalidAddress},
+	{"name@example.", ErrInvalidAddress},
+	{"@example.com", ErrInvalidAddress},
+	{".@example.com", ErrInvalidAddress},
+}
+
 func TestValidate(t *testing.T) {
-	if x := Validate("fakemail"); x != ErrInvalidAddress {
-		t.Errorf(`validateEmail("fakeemail") = %v, want false`, x)
-	}
-	if x := Validate("fake@email"); x != ErrInvalidAddress {
-		t.Errorf(`validateEmail("fake@email") = %v, want false`, x)
-	}
-	if x := Validate("fake@email.com"); x != nil {
-		t.Errorf(`validateEmail("fake@email.com") = %v, want true`, x)
+	for _, tt := range addressTests {
+		if err := Validate(tt.in); err != tt.out {
+			t.Errorf(`Validate("%v") => %v, want "%v"`, tt.in, err, tt.out)
+		}
 	}
 }
