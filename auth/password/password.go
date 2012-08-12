@@ -14,10 +14,10 @@ import (
 	"github.com/scotch/hal/user"
 )
 
-const (
-	PASSWORD_LENGTH_MIN = 4
-	PASSWORD_LENGTH_MAX = 31
-	BCRYPT_COST         = 10
+var (
+	PasswordLengthMin = 4
+	PasswordLengthMax = 31
+	BryptCost         = 10
 )
 
 var (
@@ -35,10 +35,10 @@ type Password struct {
 // validatePasswordLength returns true if the supplied string is
 // between 4 and 31 character.
 func Validate(p string) error {
-	if len(p) < PASSWORD_LENGTH_MIN {
+	if len(p) < PasswordLengthMin {
 		return ErrPasswordLength
 	}
-	if len(p) > PASSWORD_LENGTH_MAX {
+	if len(p) > PasswordLengthMax {
 		return ErrPasswordLength
 	}
 	return nil
@@ -64,7 +64,7 @@ func (p *Password) Validate() (err error) {
 }
 
 func GenerateFromPassword(password []byte) ([]byte, error) {
-	return bcrypt.GenerateFromPassword(password, BCRYPT_COST)
+	return bcrypt.GenerateFromPassword(password, BryptCost)
 }
 
 func CompareHashAndPassword(hash, password []byte) error {
