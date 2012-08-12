@@ -16,7 +16,7 @@ Set the config
 
 	c := appengine.Context(r)
 	appMap := map[string]string{
-		"Title": "Storeski
+		"Title": "Storeski"
 	}
 	appConfig, err := config.GetOrInsert(c, "app", appMap)
 
