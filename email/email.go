@@ -51,14 +51,14 @@ const (
 )
 
 type Email struct {
-	Key     *datastore.Key `datastore:"-"`
-	Address string
-	UserID  string
-	Status  int64
+	Key     *datastore.Key `json:"-",datastore:"-"`
+	Address string         `json:"address"`
+	UserID  string         `json:"-"`
+	Status  int64          `json:"status"`
 	// Created is a time.Time of when the Email was first created.
-	Created time.Time
+	Created time.Time `json:"created"`
 	// Updated is a time.Time of when the Email was last updated.
-	Updated time.Time
+	Updated time.Time `json:"updated"`
 }
 
 // New creates a new email entity and set Created to now
@@ -87,6 +87,22 @@ func Get(c appengine.Context, address string) (*Email, error) {
 	err := ds.Get(c, key, e)
 	e.Key = key
 	return e, err
+}
+
+func GetMulti(c appengine.Context, ids []string) (ee []*Email, err error) {
+	key := make([]*datastore.Key, len(ids))
+	for k, id := range ids {
+		key[k] = datastore.NewKey(c, "Email", id, 0, nil)
+	}
+	ee = make([]*Email, len(ids))
+	for i := range ee {
+		ee[i] = new(Email)
+	}
+	err = ds.GetMulti(c, key, ee)
+	for i := range ee {
+		ee[i].Key = key[i]
+	}
+	return
 }
 
 func AddForUser(c appengine.Context, address, userID string, status int64) (e *Email, err error) {
