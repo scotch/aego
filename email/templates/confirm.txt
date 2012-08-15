@@ -1,0 +1,5 @@
+Hey, we want to verify your {{SiteName}} account.   please follow the link below:
+
+{{VerifyURL}}
+
+If you didn't request verification you can ignore this email.
