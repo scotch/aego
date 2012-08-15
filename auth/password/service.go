@@ -36,7 +36,8 @@ func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request,
 	return nil
 }
 
-func (s *Service) Status(w http.ResponseWriter, r *http.Request,
+// Current returns the current users password object minus the password
+func (s *Service) Current(w http.ResponseWriter, r *http.Request,
 	args *Args, reply *Args) (err error) {
 
 	c := context.NewContext(r)
