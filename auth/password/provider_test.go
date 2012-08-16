@@ -8,7 +8,7 @@ import (
 	"github.com/scotch/hal/auth"
 	"github.com/scotch/hal/auth/profile"
 	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/email"
+	"github.com/scotch/hal/user/email"
 	"github.com/scotch/hal/person"
 	"github.com/scotch/hal/user"
 	"net/http"

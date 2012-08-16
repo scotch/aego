@@ -10,7 +10,7 @@ import (
 	"errors"
 	"github.com/scotch/hal/context"
 	"github.com/scotch/hal/ds"
-	"github.com/scotch/hal/email"
+	"github.com/scotch/hal/user/email"
 	"github.com/scotch/hal/session"
 	"net/http"
 )

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"github.com/scotch/hal/config"
 	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/email_token"
+	"github.com/scotch/hal/user/email_token"
 	"github.com/scotch/hal/mail"
 	"net/http"
 )
@@ -25,8 +25,8 @@ var defaultConfig = map[string]string{
 	"SiteURL":          "http://localhost:8080",
 	"SenderAddress":    "Company Name <noreply@example.com>",
 	"Subject":          "Please verify your email '%s'",
-	"BodyTmplPath":     "github.com/scotch/hal/email/templates/confirm.txt",
-	"BodyHTMLTmplPath": "github.com/scotch/hal/email/templates/confirm.html",
+	"BodyTmplPath":     "github.com/scotch/hal/user/email/templates/confirm.txt",
+	"BodyHTMLTmplPath": "github.com/scotch/hal/user/email/templates/confirm.html",
 }
 
 func init() {

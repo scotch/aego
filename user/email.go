@@ -7,7 +7,7 @@ package user
 import (
 	"appengine"
 	"errors"
-	"github.com/scotch/hal/email"
+	"github.com/scotch/hal/user/email"
 )
 
 var (

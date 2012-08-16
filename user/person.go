@@ -9,7 +9,7 @@ import (
 	"appengine/datastore"
 	"errors"
 	dserrors "github.com/scotch/hal/ds/errors"
-	"github.com/scotch/hal/email"
+	"github.com/scotch/hal/user/email"
 	"github.com/scotch/hal/person"
 )
 
