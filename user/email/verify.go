@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"github.com/scotch/hal/config"
 	"github.com/scotch/hal/context"
-	"github.com/scotch/hal/user/email_token"
 	"github.com/scotch/hal/mail"
+	"github.com/scotch/hal/user/token"
 	"net/http"
 )
 
@@ -42,7 +42,7 @@ func SendConfirmAddress(c context.Context, e *Email) (err error) {
 	if err != nil {
 		return err
 	}
-	et := email_token.New(c)
+	et := token.New(c)
 	et.EmailAddress = e.Address
 	if err = et.Put(c); err != nil {
 		return err
@@ -66,13 +66,13 @@ func (e *Email) SendConfirmAddress(c context.Context) (err error) {
 func verifyHandler(w http.ResponseWriter, r *http.Request) {
 	//code := r.FormValue("code")
 	var e *Email
-	var et *email_token.EmailToken
+	var et *token.Token
 	var err error
 	c := context.NewContext(r)
 	code := r.URL.Query().Get("code")
 	errURL := "/"
 	successURL := "/"
-	et, err = email_token.Get(c, code)
+	et, err = token.Get(c, code)
 	if err != nil {
 		goto Error
 	}

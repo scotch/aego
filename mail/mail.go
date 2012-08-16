@@ -52,7 +52,7 @@ func Send(c context.Context, m *TemplateMessage) (err error) {
 		return
 	}
 	if err = mail.Send(c, m.Message); err != nil {
-		c.Errorf("email: sending confirmation email to %v failed: %v", m.Message.To, err)
+		c.Errorf("email: sending confirmation email to %v failed: %v", m.To, err)
 		return
 	}
 	return nil

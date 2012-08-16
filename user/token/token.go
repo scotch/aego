@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package email_token
+package token
 
 import (
 	"appengine"
@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-type EmailToken struct {
+type Token struct {
 	Key          *datastore.Key `datastore:"-"`
 	Token        string         `datastore:"-"`
 	UserID       string         `datastore:",noindex"`
@@ -20,10 +20,10 @@ type EmailToken struct {
 	Created      time.Time
 }
 
-func New(c context.Context) (e *EmailToken) {
+func New(c context.Context) (e *Token) {
 	t := genToken()
-	k := datastore.NewKey(c, "EmailToken", t, 0, nil)
-	e = &EmailToken{
+	k := datastore.NewKey(c, "UserToken", t, 0, nil)
+	e = &Token{
 		Key:     k,
 		Token:   t,
 		Created: time.Now(),
@@ -31,9 +31,9 @@ func New(c context.Context) (e *EmailToken) {
 	return
 }
 
-func Get(c context.Context, token string) (e *EmailToken, err error) {
-	e = &EmailToken{}
-	k := datastore.NewKey(c, "EmailToken", token, 0, nil)
+func Get(c context.Context, token string) (e *Token, err error) {
+	e = &Token{}
+	k := datastore.NewKey(c, "UserToken", token, 0, nil)
 	if err = ds.Get(c, k, e); err != nil {
 		return nil, err
 	}
@@ -42,15 +42,15 @@ func Get(c context.Context, token string) (e *EmailToken, err error) {
 	return
 }
 
-func (e *EmailToken) Put(c appengine.Context) (err error) {
+func (e *Token) Put(c appengine.Context) (err error) {
 	if e.Key == nil {
-		panic("email_token: Key not set.")
+		panic("token: Key not set.")
 	}
 	key, err := ds.Put(c, e.Key, e)
 	e.Key = key
 	return
 }
 
-func (e *EmailToken) Delete(c context.Context) error {
+func (e *Token) Delete(c context.Context) error {
 	return ds.Delete(c, e.Key)
 }
