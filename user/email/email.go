@@ -44,10 +44,10 @@ func Validate(address string) error {
 }
 
 const (
-	unconfirmed = iota
+	unverified = iota
 	pending
-	confirmed
-	suspended
+	verified
+	primay
 )
 
 type Email struct {
@@ -76,7 +76,7 @@ func (e *Email) SetKey(c appengine.Context, address string) {
 
 func (e *Email) Put(c appengine.Context) (err error) {
 	e.Updated = time.Now()
-	e.Address = strings.ToLower(e.Address)
+	e.Address = strings.ToLower(e.Key.StringID())
 	e.Key, err = ds.Put(c, e.Key, e)
 	return
 }

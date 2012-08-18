@@ -80,7 +80,7 @@ func verifyHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		goto Error
 	}
-	e.Status = confirmed
+	e.Status = verified
 	if err = e.Put(c); err != nil {
 		goto Error
 	}
