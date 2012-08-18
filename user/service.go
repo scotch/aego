@@ -14,6 +14,7 @@ import (
 	"errors"
 	//"github.com/scotch/hal/api"
 	"github.com/scotch/hal/person"
+	"github.com/scotch/hal/user/email"
 	"net/http"
 )
 
@@ -25,6 +26,10 @@ type Empty struct{}
 
 type Person struct {
 	Person *person.Person
+}
+
+type Emails struct {
+	Emails []*email.Email `json:"emails"`
 }
 
 type Service struct{}
@@ -62,5 +67,21 @@ func (s *Service) Update(w http.ResponseWriter, r *http.Request,
 		return err
 	}
 	reply.Person = u.Person
+	return nil
+}
+
+func (s *Service) Emails(w http.ResponseWriter, r *http.Request,
+	args *Empty, reply *Emails) (err error) {
+
+	c := appengine.NewContext(r)
+	var u *User
+	var ee []*email.Email
+	if u, err = Current(r); err != nil {
+		return err
+	}
+	if ee, err = email.GetMulti(c, u.Emails); err != nil {
+		return err
+	}
+	reply.Emails = ee
 	return nil
 }
