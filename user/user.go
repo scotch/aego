@@ -13,6 +13,12 @@ import (
 	"time"
 )
 
+const (
+	active = iota
+	suspended
+	deleted
+)
+
 // User definition
 type User struct {
 	// The datastore Key
@@ -29,6 +35,11 @@ type User struct {
 	Emails []string
 	// Roles is a list of role names that the user belongs to.
 	Roles []string
+	// Status is the state of the account values include:
+	//  0 - Active
+	//  1 - Suspended
+	//  2 - Deleted
+	Status int8
 	// Person is an Object representing personal information about the user.
 	Person *person.Person `datastore:"-"`
 	// PersonJSON is the Person object converted to JSON, for storage purposes.
