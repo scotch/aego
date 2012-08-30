@@ -1,9 +1,6 @@
 AEGo
 ===
 
-|_| /||
-| |/-||_
-
 auth
 ----
 **Multi-Provider Authentication**
@@ -50,14 +47,4 @@ user
 ### install ###
 ``
   go get github.com/scotch/aego/v1/user
-``
-
-user_profile
-------------
-**Applciation UserProfile**
-
-
-### install ###
-``
-  go get github.com/scotch/aego/v1/user_profile
 ``

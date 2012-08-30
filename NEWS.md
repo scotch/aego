@@ -11,3 +11,6 @@
 	+ More changes.
 
 * * *
+
+2012-08-30 Release
++ Renamed HAL to AEGo and added versioning
