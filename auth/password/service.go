@@ -24,6 +24,7 @@ func (s *Service) Authenticate(w http.ResponseWriter, r *http.Request,
 	args *Args, reply *Args) (err error) {
 
 	c := context.NewContext(r)
+	args.Person.Email = args.Password.Email
 	userID, _ := user.CurrentUserIDByEmail(r, args.Password.Email)
 	pf, err := authenticate(c, args.Password, args.Person, userID)
 	if err != nil {
