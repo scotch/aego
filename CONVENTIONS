@@ -1,4 +1,4 @@
-CONVENTIONS Are coding best practices for HAL code.
+CONVENTIONS Are coding best practices for AEGo code.
 
 - Use strings for ids. To make keys compatable with datastores like
   MongoDB keys must use string. If you need to generated id use

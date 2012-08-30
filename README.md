@@ -1,4 +1,4 @@
-HAL
+AEGo
 ===
 
 |_| /||
@@ -10,7 +10,7 @@ auth
 
 ### install ###
 ``
-  go get github.com/scotch/hal/auth
+  go get github.com/scotch/aego/v1/auth
 ``
 
 * appengine_openid
@@ -23,7 +23,7 @@ config
 
 ### install ###
 ``
-  go get github.com/scotch/hal/config
+  go get github.com/scotch/aego/v1/config
 ``
 
 context
@@ -32,7 +32,7 @@ context
 
 ### install ###
 ``
-  go get github.com/scotch/hal/context
+  go get github.com/scotch/aego/v1/context
 ``
 
 ds
@@ -41,7 +41,7 @@ ds
 
 ### install ###
 ``
-  go get github.com/scotch/hal/ds
+  go get github.com/scotch/aego/v1/ds
 ``
 user
 ----
@@ -49,7 +49,7 @@ user
 
 ### install ###
 ``
-  go get github.com/scotch/hal/user
+  go get github.com/scotch/aego/v1/user
 ``
 
 user_profile
@@ -59,5 +59,5 @@ user_profile
 
 ### install ###
 ``
-  go get github.com/scotch/hal/user_profile
+  go get github.com/scotch/aego/v1/user_profile
 ``

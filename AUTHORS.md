@@ -1,6 +1,6 @@
 ###### Notice
 
-*This is the official list of **HAL** authors for copyright purposes.*
+*This is the official list of **AEGo** authors for copyright purposes.*
 
 *This file is distinct from the CONTRIBUTORS file. See the latter for an
 explanation.*
