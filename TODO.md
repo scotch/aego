@@ -18,11 +18,9 @@ these steps:
 ### v1/auth
 
 ### v1/auth/password
-- Make use of [subtle.ConstantTimeCompare](http://golang.org/pkg/crypto/subtle/#ConstantTimeCompare) to prevent timing attacks
-- Add salt to bcrypt
-  - salt should come from config setting. A proper solution for loading
-    configs prior to app initialization is still still in the works, therefore this will have to wait.
- 
 ### v1/auth/google
+- Create Authentication Strategy.
 ### v1/auth/facebook
+- Create Authentication Strategy.
 ### v1/auth/github
+- Create Authentication Strategy.
