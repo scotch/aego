@@ -9,15 +9,15 @@ import (
 	"code.google.com/p/go.crypto/bcrypt"
 	"errors"
 	"github.com/scotch/aego/v1/auth/profile"
-	"github.com/scotch/aego/v1/user/email"
 	"github.com/scotch/aego/v1/person"
 	"github.com/scotch/aego/v1/user"
+	"github.com/scotch/aego/v1/user/email"
 )
 
 var (
 	PasswordLengthMin = 4
 	PasswordLengthMax = 31
-	BryptCost         = 10
+	BryptCost         = 12
 )
 
 var (
