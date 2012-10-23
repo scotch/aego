@@ -47,7 +47,7 @@ const (
 	unverified = iota
 	pending
 	verified
-	primay
+	primary
 )
 
 type Email struct {
