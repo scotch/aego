@@ -137,7 +137,7 @@ func Get(c appengine.Context, key *datastore.Key, dst interface{}) (err error) {
 	if sc.Memcache {
 		err = memcache.Get(c, key, dst)
 		if err == nil {
-			needMemcache = true
+			needMemcache = false
 			goto Complete
 		}
 	}
