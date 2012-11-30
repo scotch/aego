@@ -37,7 +37,7 @@ var emailRegexp *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z0-9\-+~_%]+[a-zA-Z0
 // Validate returns an ErrInvalidEmail if the supplied
 // string does not contains an "@" and a ".".
 func Validate(address string) error {
-	if !emailRegexp.Match([]byte(strings.TrimSpace(address))) {
+	if !emailRegexp.MatchString(strings.TrimSpace(address)) {
 		return ErrInvalidAddress
 	}
 	return nil
