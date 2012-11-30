@@ -10,7 +10,6 @@ package acl
 import (
 	"appengine"
 	"appengine/datastore"
-	"fmt"
 	"github.com/scotch/aego/v1/ds"
 	"strings"
 )
@@ -29,7 +28,7 @@ func put(c appengine.Context, key *datastore.Key) (p *Perm, err error) {
 	return
 }
 func genID(objKey *datastore.Key, groupId, perm string) string {
-	return fmt.Sprintf("%s|%s|%s", objKey.String(), groupId, strings.ToLower(perm))
+	return objKey.String() + "|" + groupId + "|" + strings.ToLower(perm)
 }
 
 func genKey(c appengine.Context, groupId, perm string, objKey *datastore.Key) *datastore.Key {
