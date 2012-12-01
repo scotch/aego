@@ -32,12 +32,12 @@ var (
 	ErrAddressAlreadyAdded = errors.New("email: address has already been added")
 )
 
-var emailRegexp *regexp.Regexp = regexp.MustCompile(`[a-zA-Z0-9\-+~_%]+[a-zA-Z0-9\-+~_%.]*@([a-z]+[a-z0-9\\-]*\.)+[a-z][a-z]+`)
+var emailRegexp *regexp.Regexp = regexp.MustCompile(`^[a-zA-Z0-9\-+~_%]+[a-zA-Z0-9\-+~_%.]*@([a-z]+[a-z0-9\\-]*\.)+[a-z][a-z]+$`)
 
 // Validate returns an ErrInvalidEmail if the supplied
 // string does not contains an "@" and a ".".
 func Validate(address string) error {
-	if !emailRegexp.Match([]byte(strings.TrimSpace(address))) {
+	if !emailRegexp.MatchString(strings.TrimSpace(address)) {
 		return ErrInvalidAddress
 	}
 	return nil
